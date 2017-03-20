@@ -16,7 +16,6 @@
 int mountv6(const char *filename, struct unix_filesystem *u){
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_NON_NULL(u);
-    
     memset(u, 0, sizeof(&u));
     u->fbm = NULL;
     u->ibm = NULL;
@@ -26,12 +25,10 @@ int mountv6(const char *filename, struct unix_filesystem *u){
     }
     uint8_t content[SECTOR_SIZE];
     sector_read(u->f, BOOTBLOCK_SECTOR, content);
-    if(content != BOOTBLOCK_MAGIC_NUM_OFFSET){
+    if(content[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM){
         return ERR_BADBOOTSECTOR;
     }
-    uint8_t superblock[SECTOR_SIZE];
-    sector_read(u->f, SUPERBLOCK_SECTOR, superblock);
-
+    sector_read(u->f, SUPERBLOCK_SECTOR, &u->s);
 }
 
 /**
@@ -59,7 +56,7 @@ int umountv6(struct unix_filesystem *u){
  * @param u - the mounted filesytem
  */
 void mountv6_print_superblock(const struct unix_filesystem *u){	
-    printf("**********FS SUPERBLOCK START**********");
+    printf("**********FS SUPERBLOCK START**********\n");
     printf("s_isize : %" PRIu16"\n", u->s.s_isize);
     printf("s_fsize : %" PRIu16"\n", u->s.s_fsize);
     printf("s_fbmsize : %" PRIu16"\n", u->s.s_fbmsize);
@@ -73,5 +70,5 @@ void mountv6_print_superblock(const struct unix_filesystem *u){
     printf("s_fmod : %" PRIu8"\n", u->s.s_fmod);
     printf("s_ronly : %" PRIu16"\n", u->s.s_ronly);
     printf("s_time : %" PRIu16"\n", u->s.s_time[0]);
-    printf("**********FS SUPERBLOCK END************");
+    printf("**********FS SUPERBLOCK END************\n");
 }
