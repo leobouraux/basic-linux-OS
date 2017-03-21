@@ -57,18 +57,18 @@ int umountv6(struct unix_filesystem *u){
  */
 void mountv6_print_superblock(const struct unix_filesystem *u){	
     printf("**********FS SUPERBLOCK START**********\n");
-    printf("s_isize : %" PRIu16"\n", u->s.s_isize);
-    printf("s_fsize : %" PRIu16"\n", u->s.s_fsize);
-    printf("s_fbmsize : %" PRIu16"\n", u->s.s_fbmsize);
-    printf("s_ibmsize : %" PRIu16"\n", u->s.s_ibmsize);
+    printf("s_isize       : %" PRIu16"\n", u->s.s_isize);
+    printf("s_fsize       : %" PRIu16"\n", u->s.s_fsize);
+    printf("s_fbmsize     : %" PRIu16"\n", u->s.s_fbmsize);
+    printf("s_ibmsize     : %" PRIu16"\n", u->s.s_ibmsize);
     printf("s_inode_start : %" PRIu16"\n", u->s.s_inode_start);
     printf("s_block_start : %" PRIu16"\n", u->s.s_block_start);
-    printf("s_fbm_start : %" PRIu16"\n", u->s.s_fbm_start);
-    printf("s_ibm_start : %" PRIu8"\n", u->s.s_ibm_start);
-    printf("s_flock : %" PRIu8"\n", u->s.s_flock);
-    printf("s_ilock : %" PRIu8"\n", u->s.s_ilock);
-    printf("s_fmod : %" PRIu8"\n", u->s.s_fmod);
-    printf("s_ronly : %" PRIu16"\n", u->s.s_ronly);
-    printf("s_time : %" PRIu16"\n", u->s.s_time[0]);
+    printf("s_fbm_start   : %" PRIu16"\n", u->s.s_fbm_start);
+    printf("s_ibm_start   : %" PRIu8"\n", u->s.s_ibm_start);
+    printf("s_flock       : %" PRIu8"\n", u->s.s_flock);
+    printf("s_ilock       : %" PRIu8"\n", u->s.s_ilock);
+    printf("s_fmod        : %" PRIu8"\n", u->s.s_fmod);
+    printf("s_ronly       : %" PRIu16"\n", u->s.s_ronly);
+    printf("s_time        : [%" PRIu16"] %" PRIu16"\n", u->s.s_time[0], u->s.s_time[1]);
     printf("**********FS SUPERBLOCK END************\n");
 }
