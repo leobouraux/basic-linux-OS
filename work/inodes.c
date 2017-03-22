@@ -14,21 +14,21 @@ int inode_scan_print(const struct unix_filesystem *u){
     int i_count = 0;
     uint16_t size = u->s.s_isize;
     for(uint16_t inc = 0;inc < size; ++inc){
-        struct inode inodes[SECTOR_SIZE];
+        struct inode inodes[SECTOR_SIZE]; 
         sector_read(u->f, start+inc, inodes);
         for (int i = 0; i < INODES_PER_SECTOR; ++i) {
-            struct inode inode = inodes[i];
-            if (inode.i_mode & IALLOC){
-                printf("inode %d ", ++i_count);
-                if (inode.i_mode & IFDIR){
+            struct inode inod = inodes[i];
+            if (inod.i_mode & IALLOC){
+                printf("inode %3d ", ++i_count);
+                if (inod.i_mode & IFDIR){
                     printf("(" SHORT_DIR_NAME ")");
                 }else{
                     printf("(" SHORT_FIL_NAME ")");
                 }
-                printf(" len  %d\n", inode_getsize(&inode));
+                printf(" len %4d\n", inode_getsize(&inod));
             }
         }
-        ++inc;
+        ++inc; //?
     }
     return 0;
 }
