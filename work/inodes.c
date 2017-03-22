@@ -28,7 +28,6 @@ int inode_scan_print(const struct unix_filesystem *u){
                 printf(" len %4d\n", inode_getsize(&inod));
             }
         }
-        ++inc; //?
     }
     return 0;
 }
