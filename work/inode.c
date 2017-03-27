@@ -84,7 +84,7 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     }else{
         uint16_t data[SECTOR_SIZE];
         sector_read(u->f, i->i_addr[file_sec_off / ADDRESSES_PER_SECTOR], data);
-        return data[file_sec_off % 7];
+        return data[file_sec_off % ADDRESSES_PER_SECTOR];
     }
 }
 

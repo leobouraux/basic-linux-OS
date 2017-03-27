@@ -1,2 +1,5 @@
-*.o
-work/test-inodes
+*
+!/**/
+!*.c
+!*.h
+!makefile

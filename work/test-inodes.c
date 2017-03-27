@@ -9,7 +9,7 @@ int test(struct unix_filesystem *u){
     memset(&i, 0, sizeof(i));
     inode_read(u, 5, &i);
     inode_print(&i);
-    int j = inode_findsector(u, &i, 8);
+    int j = inode_findsector(u, &i, 33);
     printf("%d", j);
     return 0;
 }
