@@ -5,6 +5,8 @@
 #include <inttypes.h>
 
 /**
+ * week05 
+ * 
  * @brief read all inodes from disk and print out their content to
  *        stdout according to the assignment
  * @param u the filesystem
@@ -33,6 +35,13 @@ int inode_scan_print(const struct unix_filesystem *u){
     return 0;
 }
 
+
+/**
+ * week05
+ * 
+ * @brief prints the content of an inode structure
+ * @param inode the inode structure to be displayed
+ */
 void inode_print(const struct inode *inode){
     printf("**********FS INODE START**********\n");
     if(inode == NULL){
@@ -49,12 +58,22 @@ void inode_print(const struct inode *inode){
     printf("**********FS INODE END**********\n");
 }
 
+
+/**
+ * week05
+ * 
+ * @brief read the content of an inode from disk
+ * @param u the filesystem (IN)
+ * @param inr the inode number of the inode to read (IN)
+ * @param inode the inode structure, read from disk (OUT)
+ * @return 0 on success; <0 on error
+ */
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode){
-    if(inr < 0 || inr > u->s.s_isize) {
+    uint16_t size = u->s.s_isize;
+    if(inr < 0 || inr >size) {
         return ERR_INODE_OUTOF_RANGE;
     }
     uint16_t start = u->s.s_inode_start;
-    uint16_t size = u->s.s_isize;
     uint16_t block_offset = inr / INODES_PER_SECTOR;
     struct inode inodes[SECTOR_SIZE];
     int err = 0;
@@ -66,6 +85,17 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     return err;
 }
 
+
+/**
+ * week05
+ * 
+ * @brief identify the sector that corresponds to a given portion of a file
+ * @param u the filesystem (IN)
+ * @param inode the inode (IN)
+ * @param file_sec_off the offset within the file (in sector-size units)
+ * @return >0: the sector on disk;  0: unallocated;  <0 error
+ */
+//erreur de plus bas niveau a voir // comparaison NULL warning
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off){
     if(file_sec_off == NULL){
         file_sec_off = 0;
@@ -81,13 +111,10 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     }
     if(inode_getsize(i) <= 8 * SECTOR_SIZE){
         return i->i_addr[file_sec_off];
-    }else{
+    }else {
         uint16_t data[SECTOR_SIZE];
         sector_read(u->f, i->i_addr[file_sec_off / ADDRESSES_PER_SECTOR], data);
         return data[file_sec_off % ADDRESSES_PER_SECTOR];
+
     }
 }
-
-
-
-
