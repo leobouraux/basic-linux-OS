@@ -24,7 +24,10 @@ int mountv6(const char *filename, struct unix_filesystem *u){
         return ERR_IO;
     }
     uint8_t content[SECTOR_SIZE];
-    sector_read(u->f, BOOTBLOCK_SECTOR, content);
+    int j = sector_read(u->f, BOOTBLOCK_SECTOR, content);
+    if(j == ERR_IO || j == ERR_BAD_PARAMETER){
+        return j;
+    }
     if(content[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM){
         return ERR_BADBOOTSECTOR;
     }

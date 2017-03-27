@@ -13,12 +13,16 @@
  * @return 0 on success; < 0 on error.
  */
 int inode_scan_print(const struct unix_filesystem *u){
+    M_REQUIRE_NON_NULL(u);
     uint16_t start = u->s.s_inode_start;
     int i_count = 0;
     uint16_t size = u->s.s_isize;
     for(uint16_t inc = 0;inc < size; ++inc){
         struct inode inodes[SECTOR_SIZE]; 
-        sector_read(u->f, start+inc, inodes);
+        int j = sector_read(u->f, start+inc, inodes);
+        if(j == ERR_BAD_PARAMETER || j == ERR_IO){
+            return j;
+        }
         for (int i = 0; i < INODES_PER_SECTOR; ++i) {
             struct inode inod = inodes[i];
             if (inod.i_mode & IALLOC){
@@ -69,6 +73,8 @@ void inode_print(const struct inode *inode){
  * @return 0 on success; <0 on error
  */
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode){
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(inode);
     uint16_t size = u->s.s_isize;
     if(inr < 0 || inr >size) {
         return ERR_INODE_OUTOF_RANGE;
@@ -76,8 +82,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     uint16_t start = u->s.s_inode_start;
     uint16_t block_offset = inr / INODES_PER_SECTOR;
     struct inode inodes[SECTOR_SIZE];
-    int err = 0;
-    err = sector_read(u->f, start+block_offset, inodes);
+    int err = sector_read(u->f, start+block_offset, inodes);
     *inode = inodes[inr % INODES_PER_SECTOR];
     if (! (inode->i_mode & IALLOC)){
         return ERR_UNALLOCATED_INODE;
@@ -97,6 +102,8 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
  */
 //erreur de plus bas niveau a voir // comparaison NULL warning
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off){
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(i);
     if(file_sec_off == NULL){
         file_sec_off = 0;
     }
