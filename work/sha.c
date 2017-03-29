@@ -35,7 +35,7 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inod, int inr) {
 	if(inod.i_mode & IALLOC) {
 		printf("SHA inode %d:", inr);
 		if (inod.i_mode & IFDIR) {
-			printf(" no SHA for directories. ");
+			printf(" no SHA for directories. \n");
 		}
 		else {
 			/*aller lire tout le contenu du fichier correspondant
@@ -44,6 +44,7 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inod, int inr) {
 			struct inode inodes[SECTOR_SIZE]; 
 			filev6_readblock(&filv6, inodes);
 			print_sha_from_content(inodes, SECTOR_SIZE);
+			printf("\n");
 		}
 		
 	}
