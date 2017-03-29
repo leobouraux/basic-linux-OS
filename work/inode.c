@@ -76,7 +76,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
     uint16_t size = u->s.s_isize;
-    if(inr < 0 || inr >size) {
+    if(inr >size) {
         return ERR_INODE_OUTOF_RANGE;
     }
     uint16_t start = u->s.s_inode_start;
@@ -104,19 +104,17 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
-    if(file_sec_off == NULL){
-        file_sec_off = 0;
-    }
+
     if(file_sec_off < 0 || file_sec_off > inode_getsize(i)){
         return ERR_OFFSET_OUT_OF_RANGE;
     }
     if (! (i->i_mode & IALLOC)){
         return ERR_UNALLOCATED_INODE;
     }
-    if(inode_getsize(i) > 7 * ADDRESSES_PER_SECTOR * SECTOR_SIZE){
+    if(inode_getsize(i) > (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR * SECTOR_SIZE){
         return ERR_FILE_TOO_LARGE;
     }
-    if(inode_getsize(i) <= 8 * SECTOR_SIZE){
+    if(inode_getsize(i) <= ADDR_SMALL_LENGTH * SECTOR_SIZE){
         return i->i_addr[file_sec_off];
     }else {
         uint16_t data[SECTOR_SIZE];
