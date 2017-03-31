@@ -82,7 +82,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     uint16_t start = u->s.s_inode_start;
     uint16_t block_offset = inr / INODES_PER_SECTOR;
     struct inode inodes[SECTOR_SIZE];
-    int err = sector_read(u->f, start+block_offset, inodes);
+    int err = sector_read(u->f,  start+block_offset, inodes);
     *inode = inodes[inr % INODES_PER_SECTOR];
     if (! (inode->i_mode & IALLOC)){
         return ERR_UNALLOCATED_INODE;
