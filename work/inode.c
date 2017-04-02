@@ -100,7 +100,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
  * @param file_sec_off the offset within the file (in sector-size units)
  * @return >0: the sector on disk;  0: unallocated;  <0 error
  */
-//erreur de plus bas niveau a voir // comparaison NULL warning
+//file_sec_off % ADDRESSES_PER_SECTOR OU file_sec_oFF
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
