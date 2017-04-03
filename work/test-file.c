@@ -7,7 +7,7 @@
 #include "error.h"
 #include "sector.h"
 
-void helper(struct unix_filesystem *u, struct filev6 *fs, int i){
+void helper(struct unix_filesystem *u, struct filev6 *fs, uint16_t i){
     int err = filev6_open(u, i, fs);
     if (err < 0) {
         printf("filev6_open failed for inode #%d\n", i);
@@ -15,12 +15,14 @@ void helper(struct unix_filesystem *u, struct filev6 *fs, int i){
         printf("Printing inode #%d:\n", i);
         inode_print(&fs->i_node);
         if (fs->i_node.i_mode & IFDIR) {
-            printf("It's a directory");
+            printf("It's a directory\n");
         } else {
             printf("The first sector of data of which contains :\n");
         }
         char b[SECTOR_SIZE + 1];
-        filev6_readblock(fs, &b);
+        int j = filev6_readblock(fs, &b);
+        printf("%d", j);
+        printf("%c", b[15]);
         b[SECTOR_SIZE] = '\0';
         printf("%s", b);
     }
@@ -32,6 +34,8 @@ int test(struct unix_filesystem *u) {
     helper(u, &fs, 3);
     memset(&fs, 255, sizeof(fs));
     helper(u, &fs, 5);
+    memset(&fs, 255, sizeof(fs));
+    helper(u, &fs, 1);
 
     printf("Listing inodes SHA:\n");
     int i_count = 0;
