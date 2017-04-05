@@ -20,9 +20,7 @@ void helper(struct unix_filesystem *u, struct filev6 *fs, uint16_t i){
             printf("the first sector of data of which contains :\n");
         }
         char b[SECTOR_SIZE + 1];
-        int j = filev6_readblock(fs, &b);
-        printf("%d", j);
-        printf("%c", b[15]);
+        filev6_readblock(fs, &b);
         b[SECTOR_SIZE] = '\0';
         printf("%s\n----\n", b);
      }
@@ -34,13 +32,13 @@ int test(struct unix_filesystem *u) {
     helper(u, &fs, 3);
     memset(&fs, 255, sizeof(fs));
     helper(u, &fs, 5);
-    memset(&fs, 255, sizeof(fs));
-    helper(u, &fs, 1);
+    //memset(&fs, 255, sizeof(fs));
+    //helper(u, &fs, 1);
 
     printf("Listing inodes SHA:\n");
     int i_count = 0;
     uint16_t size = u->s.s_isize;
-    //for each sector of the content file
+    //pour tous les inodes à lire
     for (uint16_t inc = 0; inc < size; ++inc) {
         struct inode inodes[SECTOR_SIZE];
         //we read this sector and put it in the table of inodes
@@ -48,11 +46,11 @@ int test(struct unix_filesystem *u) {
         if (j == ERR_BAD_PARAMETER || j == ERR_IO) {
             return j;
         }
-        for (int i = 0; i < INODES_PER_SECTOR; ++i) {
-            struct inode inod = inodes[i/*5*/];
+        //for (int i = 0; i < INODES_PER_SECTOR; ++i) {
+            struct inode inod = inodes[/*i*/5];
 
-            print_sha_inode(u, inod, i_count++/*5*/);
-        }
+            print_sha_inode(u, inod, /*i_count++*/5);
+        //}
     }
 
     return 0;
