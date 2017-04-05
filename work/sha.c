@@ -55,8 +55,8 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inod, int inr) {
                 content[SECTOR_SIZE * 7 * 256] = '\0';
                 //printf("size of the lecture : %d\n", rem);
 
-                /*char* currContent = calloc(SECTOR_SIZE+1, sizeof(char*));
-                /*rem = filev6_readblock(&filv6, currContent);   //passe direct au chap5*/
+                //char* currContent = calloc(SECTOR_SIZE+1, sizeof(char*));
+                //rem = filev6_readblock(&filv6, currContent);   //passe direct au chap5*/
 
                 if (content != NULL) {
                     while (rem == 512) {
@@ -70,16 +70,17 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inod, int inr) {
                         rem = filev6_readblock(&filv6, currContent);//dernier content et ça va trop loin
                         currContent[SECTOR_SIZE] = '\0';
                         strcat(content, currContent);
-                        printf("%d WWWII  ", rem);
+                        //printf("%d WWWII  ", rem);
+                        //printf("\nCONTENT----\n%s----\nSHA:", content);
                         free(currContent);
                     }
 
                 }
 
 
-
+            //printf("\nCONTENT----\n%s----\nSHA:", content);
                 //printf("\nCONTENT----\n%s----\nSHA:", currContent);
-                print_sha_from_content(content, rem);
+                print_sha_from_content(content, strlen(content));
                 free(content);
                 printf("\n\n\n\n\n\n\n\n");
 

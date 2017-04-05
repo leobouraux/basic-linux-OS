@@ -46,11 +46,11 @@ int test(struct unix_filesystem *u) {
         if (j == ERR_BAD_PARAMETER || j == ERR_IO) {
             return j;
         }
-        //for (int i = 0; i < INODES_PER_SECTOR; ++i) {
-            struct inode inod = inodes[/*i*/5];
+        for (int i = 0; i < INODES_PER_SECTOR; ++i) {
+            struct inode inod = inodes[/*i*5*/i];
 
-            print_sha_inode(u, inod, /*i_count++*/5);
-        //}
+            print_sha_inode(u, inod, i_count++/*5*/);
+        }
     }
 
     return 0;
