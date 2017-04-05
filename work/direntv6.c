@@ -32,12 +32,8 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
             d->last = readSize / sizeof(struct direntv6);
         }
     }
-    size_t nameSize = sizeof(d->dirs[d->cur].d_name);
-    strncpy(name, d->dirs[d->cur].d_name,nameSize);
-
-    if(nameSize == DIRENT_MAXLEN){
-        name[DIRENT_MAXLEN+1] = '\0';
-    }
+    name[DIRENT_MAXLEN+1] = '\0';
+    strncpy(name, d->dirs[d->cur].d_name,DIRENT_MAXLEN);
     *child_inr = d->dirs[d->cur].d_inumber;
     d->cur += 1;
     return 1;
