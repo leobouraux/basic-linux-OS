@@ -19,10 +19,17 @@ void helper(struct unix_filesystem *u, struct filev6 *fs, uint16_t i){
         } else {
             printf("the first sector of data of which contains :\n");
         }
+        //fs->offset += 17385+512;
         char b[SECTOR_SIZE + 1];
-        filev6_readblock(fs, &b);
+        filev6_readblock(fs, b);
         b[SECTOR_SIZE] = '\0';
         printf("%s\n----\n", b);
+
+        /*char c[SECTOR_SIZE + 1];
+        filev6_readblock(fs, c);
+        c[SECTOR_SIZE] = '\0';
+        printf("%s\n----\n", c);*/
+
      }
 }
 
@@ -37,19 +44,19 @@ int test(struct unix_filesystem *u) {
 
     printf("Listing inodes SHA:\n");
     int i_count = 0;
-    uint16_t size = u->s.s_isize;
-    //pour tous les inodes à lire
-    for (uint16_t inc = 0; inc < size; ++inc) {
+    uint16_t size = u->s.s_isize;  /* size in sectors of the inodes */
+    printf("%d", size);
+    //pour tous les inodes possible à lire
+    for (uint16_t inc = 0; inc < size; ++inc) {         //=1     et inode 5 --> 16+5=21 print le dernier inode (tout le fichier)
         struct inode inodes[SECTOR_SIZE];
         //we read this sector and put it in the table of inodes
         int j = sector_read(u->f, u->s.s_inode_start + inc, inodes);
         if (j == ERR_BAD_PARAMETER || j == ERR_IO) {
             return j;
         }
-        for (int i = 0; i < INODES_PER_SECTOR; ++i) {
-            struct inode inod = inodes[/*i*5*/i];
-
-            print_sha_inode(u, inod, i_count++/*5*/);
+        for (int i = 0; i < INODES_PER_SECTOR; i++) {
+            struct inode inod = inodes[i];
+            print_sha_inode(u, inod, i_count++);
         }
     }
 

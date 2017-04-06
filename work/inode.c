@@ -3,6 +3,7 @@
 #include "error.h"
 #include <string.h>
 #include <inttypes.h>
+#include <stdlib.h>
 
 /**
  * week05 
@@ -100,26 +101,24 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
  * @param file_sec_off the offset within the file (in sector-size units)
  * @return >0: the sector on disk;  0: unallocated;  <0 error
  */
-//file_sec_off % ADDRESSES_PER_SECTOR OU file_sec_oFF
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
-
-    if(file_sec_off < 0 || file_sec_off > inode_getsize(i)){
+    int relativeSize = (inode_getsize(i)-1)/SECTOR_SIZE+1;
+    if(file_sec_off >=relativeSize){
         return ERR_OFFSET_OUT_OF_RANGE;
     }
     if (! (i->i_mode & IALLOC)){
         return ERR_UNALLOCATED_INODE;
     }
-    if(inode_getsize(i) > (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR * SECTOR_SIZE){
+    if(relativeSize > (ADDR_SMALL_LENGTH-1)*ADDRESSES_PER_SECTOR){
         return ERR_FILE_TOO_LARGE;
     }
-    if(inode_getsize(i) <= ADDR_SMALL_LENGTH * SECTOR_SIZE){
+    if(relativeSize <=ADDR_SMALL_LENGTH){
         return i->i_addr[file_sec_off];
     }else {
         uint16_t data[SECTOR_SIZE];
-        sector_read(u->f, i->i_addr[file_sec_off / ADDRESSES_PER_SECTOR], data);
+        sector_read(u->f, i->i_addr[file_sec_off / (ADDRESSES_PER_SECTOR)], data);
         return data[file_sec_off % ADDRESSES_PER_SECTOR];
-
     }
 }
