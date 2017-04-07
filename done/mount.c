@@ -24,7 +24,10 @@ int mountv6(const char *filename, struct unix_filesystem *u){
         return ERR_IO;
     }
     uint8_t content[SECTOR_SIZE];
-    sector_read(u->f, BOOTBLOCK_SECTOR, content);
+    int j = sector_read(u->f, BOOTBLOCK_SECTOR, content);
+    if(j == ERR_IO || j == ERR_BAD_PARAMETER){
+        return j;
+    }
     if(content[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM){
         return ERR_BADBOOTSECTOR;
     }
@@ -70,5 +73,5 @@ void mountv6_print_superblock(const struct unix_filesystem *u){
     printf("s_fmod        : %" PRIu8"\n", u->s.s_fmod);
     printf("s_ronly       : %" PRIu16"\n", u->s.s_ronly);
     printf("s_time        : [%" PRIu16"] %" PRIu16"\n", u->s.s_time[0], u->s.s_time[1]);
-    printf("**********FS SUPERBLOCK END************\n");
+    printf("**********FS SUPERBLOCK END************\n\n");
 }
