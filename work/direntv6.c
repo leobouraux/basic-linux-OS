@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "direntv6.h"
 #include "error.h"
-#include "string.h"
+#include <string.h>
 #include "unixv6fs.h"
 #include <inttypes.h>
 
@@ -45,9 +45,11 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
     struct directory_reader d;
     int j = direntv6_opendir(u, inr, &d);
     if(j == ERR_INVALID_DIRECTORY_INODE){
-        printf("FIL %s\n", prefix);
+        char* c =  strrchr(prefix, PATH_TOKEN);
+        *c = '\0';
+        printf(SHORT_FIL_NAME" %s\n", prefix);
     }else{
-        printf("DIR %s\n", prefix);
+        printf(SHORT_DIR_NAME" %s\n", prefix);
         char name[MAXPATHLEN_UV6];
         uint16_t child_inr = 0;
         int done = 1;

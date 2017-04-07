@@ -3,6 +3,7 @@
 #include "error.h"
 #include <string.h>
 #include <inttypes.h>
+#include <math.h>
 
 /**
  * week05 
@@ -104,17 +105,17 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
-
-    if(file_sec_off < 0 || file_sec_off > inode_getsize(i)){
+    int nb_sectors = ceil(inode_getsize(i) / (double)SECTOR_SIZE);
+    if(file_sec_off < 0 || file_sec_off >= nb_sectors){
         return ERR_OFFSET_OUT_OF_RANGE;
     }
     if (! (i->i_mode & IALLOC)){
         return ERR_UNALLOCATED_INODE;
     }
-    if(inode_getsize(i) > (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR * SECTOR_SIZE){
+    if(nb_sectors > (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR){
         return ERR_FILE_TOO_LARGE;
     }
-    if(inode_getsize(i) <= ADDR_SMALL_LENGTH * SECTOR_SIZE){
+    if( nb_sectors <= ADDR_SMALL_LENGTH){
         return i->i_addr[file_sec_off];
     }else {
         uint16_t data[SECTOR_SIZE];

@@ -27,8 +27,10 @@ int filev6_readblock(struct filev6 *fv6, void *buf){
 
     int remaining = inode_getsize(&fv6->i_node) - fv6->offset;
     /*printf("FILEV6 INODESIZE %d, \n", inode_getsize(&fv6->i_node));
-    printf("FILEV6 OFFSET %d, \n", fv6->offset);
+
     printf("FILEV6 REM %d, \n", remaining);*/
+    //printf("FILEV6 OFFSET %d, \n", fv6->offset);
+
     int j = sector_read(fv6->u->f, inode_findsector(fv6->u, &fv6->i_node, fv6->offset), buf);
     if(j == ERR_IO || j == ERR_BAD_PARAMETER){
         return j;

@@ -23,6 +23,10 @@ void helper(struct unix_filesystem *u, struct filev6 *fs, uint16_t i){
         filev6_readblock(fs, &b);
         b[SECTOR_SIZE] = '\0';
         printf("%s\n----\n", b);
+        char c[SECTOR_SIZE + 1];
+        filev6_readblock(fs, &c);
+        c[SECTOR_SIZE] = '\0';
+        printf("%s\n----\n", c);
      }
 }
 
