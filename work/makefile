@@ -9,7 +9,7 @@ test-file: test-core.o error.o test-file.o mount.o sector.o inode.o filev6.o sha
 
 test-dirent: test-core.o test-dirent.o error.o mount.o sector.o inode.o sha.o filev6.o direntv6.o
 
-shell: shell.o
+shell: shell.o filev6.o direntv6.o error.o sector.o inode.o sha.o mount.o
 
 clean:
 	rm *.o

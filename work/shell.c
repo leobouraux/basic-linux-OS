@@ -1,59 +1,10 @@
 #include <string.h>
 #include <stdio.h>
+#include "mount.h"
+#include "direntv6.h"
+#include "inode.h"
 
-int do_exit(char** args){
-
-}
-
-int do_quit(char** args){
-
-}
-
-int do_help(char** args){
-
-}
-
-int do_mount(char** args){
-
-}
-
-int do_lsall(char** args){
-
-}
-
-int do_psb(char** args){
-
-}
-
-int do_cat(char** args){
-
-}
-
-int do_sha(char** args){
-
-}
-
-int do_inode(char** args){
-
-}
-
-int do_istat(char** args){
-
-}
-
-int do_mkfs(char** args){
-
-}
-
-int do_mkdir(char** args){
-
-}
-
-int do_add(char** args){
-
-}
-
-//struct unix_filesystem u;
+struct unix_filesystem u;
 
 typedef int (*shell_fct)(char**);
 
@@ -64,6 +15,33 @@ struct shell_map {
     size_t argc;        // nombre d'arguments de la commande
     const char* args;   // description des arguments de la commande
 };
+
+int do_exit(char** args);
+
+int do_quit(char** args);
+
+int do_help(char** args);
+
+int do_mount(char** args);
+
+int do_lsall(char** args);
+
+int do_psb(char** args);
+
+int do_cat(char** args);
+
+int do_sha(char** args);
+
+int do_inode(char** args);
+
+int do_istat(char** args);
+
+int do_mkfs(char** args);
+
+int do_mkdir(char** args);
+
+int do_add(char** args);
+
 
 struct shell_map shell_cmds[13] = {
         { "exit", do_exit, "exit shell", 0, ""},
@@ -81,6 +59,69 @@ struct shell_map shell_cmds[13] = {
         { "add", do_add, "add new file", 2, "<src-fullpath> <dst>"}
 };
 
+int do_exit(char** args){
+    return 0;
+}
+
+int do_quit(char** args){
+    return 0;
+}
+
+int do_help(char** args){
+    for (int i = 0; i < 13; ++i) {
+        printf("- %s: %s: %s\n", shell_cmds[i].name, shell_cmds[i].args, shell_cmds[i].help);
+    }
+    return 0;
+}
+
+int do_mount(char** args){
+    return mountv6(args[1], &u);
+}
+
+int do_lsall(char** args){
+    return direntv6_print_tree(&u, ROOT_INUMBER, ROOTDIR_NAME);
+}
+
+int do_psb(char** args){
+    mountv6_print_superblock(&u);
+    return 0;
+}
+
+int do_cat(char** args){
+
+}
+
+int do_sha(char** args){
+
+}
+
+int do_inode(char** args){
+
+}
+
+int do_istat(char** args){
+    struct inode i;
+    memset(&i, 0, sizeof(i));
+    int err = inode_read(&u, *args[1], &i);
+    if(err < 0){
+        return err;
+    }
+    inode_print(&i);
+    return 0;
+}
+
+int do_mkfs(char** args){
+
+}
+
+int do_mkdir(char** args){
+
+}
+
+int do_add(char** args){
+
+}
+
 void tokenize_input(char* input, char args[][30]){
     int i = 0;
     char* p = strtok(input, " ");
@@ -91,30 +132,24 @@ void tokenize_input(char* input, char args[][30]){
     }
 }
 
-int main1(){
-    struct shell_map current;
+int main(){
+    struct shell_map current = {"", NULL, "", 0, ""};
     char input[100];
-    char* args[4];
+    char args[4][30];
     while (!feof(stdin) && !ferror(stdin) && strcmp(current.name, "quit") && strcmp(current.name, "exit")) {
-        scanf("%s", input);
+        printf(">");
+        fgets(input, 100 , stdin);
+        input[strcspn(input, "\n")] = 0;
         tokenize_input(input, args);
         for (int i = 0; i < 13; ++i) {
-            if(strcmp(input, shell_cmds[i].name) == 0){
+            if(strcmp(args[0], shell_cmds[i].name) == 0){
                 current = shell_cmds[i];
             }
         }
+        //printf("%s\n", current.name);
         current.fct(args);
     }
-}
-
-int main(){
-    char input[100];
-    char args[4][30];
-    scanf("%s", input);
-    tokenize_input(input, args);
-    for (int i = 0; i < 4; ++i) {
-        printf("%s", args[i]);
-    }
+    return 0;
 }
 
 
