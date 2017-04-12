@@ -6,7 +6,11 @@
 
 struct unix_filesystem u;
 
-typedef int (*shell_fct)(char**);
+#define ARG_LENGTH 30
+#define ARG_NB 4
+#define INPUT_LENGTH ARG_NB * (ARG_LENGTH+1)
+
+typedef int (*shell_fct)(char args[ARG_NB][ARG_LENGTH]);
 
 struct shell_map {
     const char* name;    // nom de la commande
@@ -16,90 +20,95 @@ struct shell_map {
     const char* args;   // description des arguments de la commande
 };
 
-int do_exit(char** args);
+int do_exit(char args[ARG_NB][ARG_LENGTH]);
 
-int do_quit(char** args);
+int do_quit(char args[ARG_NB][ARG_LENGTH]);
 
-int do_help(char** args);
+int do_help(char args[ARG_NB][ARG_LENGTH]);
 
-int do_mount(char** args);
+int do_mount(char args[ARG_NB][ARG_LENGTH]);
 
-int do_lsall(char** args);
+int do_lsall(char args[ARG_NB][ARG_LENGTH]);
 
-int do_psb(char** args);
+int do_psb(char args[ARG_NB][ARG_LENGTH]);
 
-int do_cat(char** args);
+int do_cat(char args[ARG_NB][ARG_LENGTH]);
 
-int do_sha(char** args);
+int do_sha(char args[ARG_NB][ARG_LENGTH]);
 
-int do_inode(char** args);
+int do_inode(char args[ARG_NB][ARG_LENGTH]);
 
-int do_istat(char** args);
+int do_istat(char args[ARG_NB][ARG_LENGTH]);
 
-int do_mkfs(char** args);
+int do_mkfs(char args[ARG_NB][ARG_LENGTH]);
 
-int do_mkdir(char** args);
+int do_mkdir(char args[ARG_NB][ARG_LENGTH]);
 
-int do_add(char** args);
+int do_add(char args[ARG_NB][ARG_LENGTH]);
 
 
 struct shell_map shell_cmds[13] = {
+        { "help", do_help, "display this help", 0, ""},
         { "exit", do_exit, "exit shell", 0, ""},
         { "quit", do_quit, "exit shell", 0, ""},
-        { "help", do_help, "display this help", 0, ""},
-        { "mount", do_mount, "mount the provided filesystem", 1, "<diskname>"},
-        { "lsall", do_lsall, "list all direcoties and files contained in the currently mounted filesystem", 0, ""},
-        { "psb", do_psb, "print SuperBlock of the currently mounted filesystem", 0, ""},
-        { "cat", do_cat, "display the content of a file", 1, "<pathname>"},
-        { "sha", do_sha, "display the Sha file", 1, "<pathname>"},
-        { "inode", do_inode, "display the inode number of a file", 1, "<pathname>"},
-        { "istats", do_istat, "display information about the provided inode", 1, "<inode_nr>"},
         { "mkfs", do_mkfs, "create a new filesystem", 3, "<diskname> <#inodes> <#blocks>"},
+        { "mount", do_mount, "mount the provided filesystem", 1, "<diskname>"},
         { "mkdir", do_mkdir, "create a new directory", 1, "<dirname>"},
-        { "add", do_add, "add new file", 2, "<src-fullpath> <dst>"}
+        { "lsall", do_lsall, "list all direcoties and files contained in the currently mounted filesystem", 0, ""},
+        { "add", do_add, "add new file", 2, "<src-fullpath> <dst>"},
+        { "cat", do_cat, "display the content of a file", 1, "<pathname>"},
+        { "istat", do_istat, "display information about the provided inode", 1, "<inode_nr>"},
+        { "inode", do_inode, "display the inode number of a file", 1, "<pathname>"},
+        { "sha", do_sha, "display the Sha file", 1, "<pathname>"},
+        { "psb", do_psb, "print SuperBlock of the currently mounted filesystem", 0, ""}
 };
 
-int do_exit(char** args){
+int do_exit(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
-int do_quit(char** args){
+int do_quit(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
-int do_help(char** args){
+int do_help(char args[ARG_NB][ARG_LENGTH]){
     for (int i = 0; i < 13; ++i) {
-        printf("- %s: %s: %s\n", shell_cmds[i].name, shell_cmds[i].args, shell_cmds[i].help);
+        printf("- %s: ", shell_cmds[i].name);
+        if(shell_cmds[i].argc > 0){
+            printf("%s: ", shell_cmds[i].args);
+        }
+        printf("%s\n", shell_cmds[i].help);
     }
     return 0;
 }
 
-int do_mount(char** args){
+int do_mount(char args[ARG_NB][ARG_LENGTH]){
     return mountv6(args[1], &u);
 }
 
-int do_lsall(char** args){
+int do_lsall(char args[ARG_NB][ARG_LENGTH]){
     return direntv6_print_tree(&u, ROOT_INUMBER, ROOTDIR_NAME);
 }
 
-int do_psb(char** args){
+int do_psb(char args[ARG_NB][ARG_LENGTH]){
     mountv6_print_superblock(&u);
     return 0;
 }
 
-int do_cat(char** args){
+int do_cat(char args[ARG_NB][ARG_LENGTH]){
+    int i = direntv6_dirlookup(&u, ROOT_INUMBER, "/tmp/coucou.txt");
+    //./shell < test-cat.txt > out.txt
+}
+
+int do_sha(char args[ARG_NB][ARG_LENGTH]){
 
 }
 
-int do_sha(char** args){
+int do_inode(char args[ARG_NB][ARG_LENGTH]){
 
 }
 
-int do_inode(char** args){
-
-}
-
-int do_istat(char** args){
+int do_istat(char args[ARG_NB][ARG_LENGTH]){
     struct inode i;
     memset(&i, 0, sizeof(i));
     int err = inode_read(&u, *args[1], &i);
@@ -110,19 +119,19 @@ int do_istat(char** args){
     return 0;
 }
 
-int do_mkfs(char** args){
+int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
 
 }
 
-int do_mkdir(char** args){
+int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
 
 }
 
-int do_add(char** args){
+int do_add(char args[ARG_NB][ARG_LENGTH]){
 
 }
 
-void tokenize_input(char* input, char args[][30]){
+void tokenize_input(char* input, char args[ARG_NB][ARG_LENGTH]){
     int i = 0;
     char* p = strtok(input, " ");
     while(p != NULL){
@@ -134,11 +143,11 @@ void tokenize_input(char* input, char args[][30]){
 
 int main(){
     struct shell_map current = {"", NULL, "", 0, ""};
-    char input[100];
-    char args[4][30];
+    char input[INPUT_LENGTH];
+    char args[ARG_NB][ARG_LENGTH];
     while (!feof(stdin) && !ferror(stdin) && strcmp(current.name, "quit") && strcmp(current.name, "exit")) {
         printf(">");
-        fgets(input, 100 , stdin);
+        fgets(input, INPUT_LENGTH , stdin);
         input[strcspn(input, "\n")] = 0;
         tokenize_input(input, args);
         for (int i = 0; i < 13; ++i) {
@@ -146,7 +155,6 @@ int main(){
                 current = shell_cmds[i];
             }
         }
-        //printf("%s\n", current.name);
         current.fct(args);
     }
     return 0;

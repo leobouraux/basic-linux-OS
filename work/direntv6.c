@@ -66,3 +66,40 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
     }
     return 0;
 }
+
+int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const char *entry, size_t length){
+    char* pos = strchr(entry, '/');
+    if(pos == NULL || pos+1 == strchr(entry, '\0')){
+        return inr;
+    }
+    struct directory_reader d;
+    int j = direntv6_opendir(u, inr, &d);
+    if(j < 0){
+        //gestion d'erreur
+    }
+    char name[MAXPATHLEN_UV6];
+    uint16_t child_inr = 0;
+    int done = 1;
+    do{
+        done = direntv6_readdir(&d,name, &child_inr);
+        if(done == 1){
+            char* end = strchr(entry+1, '/');
+            //tester aussi \0
+
+            int j = strncmp(name, entry+1, end-(entry+1));
+            printf("%d", j);
+            if(j == 0){
+
+                //recursion trouver bon pointer et length
+                direntv6_dirlookup_core(u, child_inr, , );
+            }
+        }
+    }while(done > 0);
+    return 0;
+}
+
+int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char *entry){
+    return direntv6_dirlookup_core(u, inr, entry, strlen(entry));
+    //return direntv6_dirlookup_core(u, 1234, "coucou/", 2);
+}
+

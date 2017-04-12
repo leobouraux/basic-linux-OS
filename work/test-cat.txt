@@ -1,0 +1,2 @@
+mount disks/simple.uv6
+cat
