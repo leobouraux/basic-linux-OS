@@ -96,16 +96,36 @@ int do_psb(char args[ARG_NB][ARG_LENGTH]){
 }
 
 int do_cat(char args[ARG_NB][ARG_LENGTH]){
-    int i = direntv6_dirlookup(&u, ROOT_INUMBER, "/tmp/coucou.txt");
-    //./shell < test-cat.txt > out.txt
+    int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
+    struct filev6 fs;
+    memset(&fs, 255, sizeof(fs));
+    filev6_open(&u, inr, &fs);
+    if (fs.i_node.i_mode & IFDIR) {
+        printf("ERROR SHELL: cat on a directory is not defined\n");
+    } else {
+        char content[SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1];
+        int rem = filev6_readblock(&fs, content);
+        content[SECTOR_SIZE * 7 * 256] = '\0';
+        while (rem == SECTOR_SIZE) {
+            char currContent[SECTOR_SIZE + 1];
+            rem = filev6_readblock(&fs, currContent);
+            currContent[SECTOR_SIZE] = '\0';
+            strcat(content, currContent);
+        }
+        printf("%s", content);
+    }
+    return 0;
 }
 
 int do_sha(char args[ARG_NB][ARG_LENGTH]){
 
+    return 0;
 }
 
 int do_inode(char args[ARG_NB][ARG_LENGTH]){
-
+    int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
+    printf("inode: %d", inr);
+    return 0;
 }
 
 int do_istat(char args[ARG_NB][ARG_LENGTH]){
@@ -120,15 +140,15 @@ int do_istat(char args[ARG_NB][ARG_LENGTH]){
 }
 
 int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
-
+    return 0;
 }
 
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
-
+    return 0;
 }
 
 int do_add(char args[ARG_NB][ARG_LENGTH]){
-
+    return 0;
 }
 
 void tokenize_input(char* input, char args[ARG_NB][ARG_LENGTH]){
