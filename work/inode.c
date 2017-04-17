@@ -19,13 +19,13 @@ int inode_scan_print(const struct unix_filesystem *u){
     uint16_t start = u->s.s_inode_start;
     int i_count = 0;
     uint16_t size = u->s.s_isize;
-    for(uint16_t inc = 0;inc < size; ++inc){
+    for(uint16_t inc = 0; inc < size; ++inc){
         struct inode inodes[SECTOR_SIZE]; 
-        int j = sector_read(u->f, start+inc, inodes);
+        int j = sector_read(u->f, (uint32_t)(start+inc), inodes);
         if(j == ERR_BAD_PARAMETER || j == ERR_IO){
             return j;
         }
-        for (int i = 0; i < INODES_PER_SECTOR; ++i) {
+        for (unsigned int i = 0; i < INODES_PER_SECTOR; ++i) {
             struct inode inod = inodes[i];
             if (inod.i_mode & IALLOC){
                 printf("inode %3d ", ++i_count);
@@ -84,7 +84,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     uint16_t start = u->s.s_inode_start;
     uint16_t block_offset = inr / INODES_PER_SECTOR;
     struct inode inodes[SECTOR_SIZE];
-    int err = sector_read(u->f,  start+block_offset, inodes);
+    int err = sector_read(u->f,  (uint32_t)(start+block_offset), inodes);
     *inode = inodes[inr % INODES_PER_SECTOR];
     if (! (inode->i_mode & IALLOC)){
         return ERR_UNALLOCATED_INODE;
@@ -105,7 +105,6 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
-    //int nb_sectors = ceil(inode_getsize(i) / (double)SECTOR_SIZE);
 
     int relativeSize = (inode_getsize(i)-1)/SECTOR_SIZE+1;
     if(file_sec_off >=relativeSize){

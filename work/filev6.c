@@ -39,3 +39,18 @@ int filev6_readblock(struct filev6 *fv6, void *buf){
         return SECTOR_SIZE;
     }
 }
+
+/**
+ * @brief change the current offset of the given file to the one specified
+ * @param fv6 the filev6 (IN-OUT; offset will be changed)
+ * @param off the new offset of the file
+ * @return 0 on success; <0 on errror
+ */
+int filev6_lseek(struct filev6 *fv6, int32_t offset){
+    M_REQUIRE_NON_NULL(fv6);
+    if(offset > inode_getsize(&fv6->i_node)){
+        return ERR_OFFSET_OUT_OF_RANGE;
+    }
+    fv6->offset = offset;
+    return 0;
+}

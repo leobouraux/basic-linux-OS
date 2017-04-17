@@ -13,3 +13,9 @@ shell: shell.o filev6.o direntv6.o error.o sector.o inode.o sha.o mount.o
 
 clean:
 	rm *.o
+
+fs.o: fs.c
+	$(COMPILE.c) -D_DEFAULT_SOURCE $$(pkg-config fuse --cflags) -o $@ -c $<
+
+fs: fs.o mount.o sector.o
+	$(LINK.c) -o $@ $^ $(LDLIBS) $$(pkg-config fuse --libs)
