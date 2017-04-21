@@ -9,7 +9,7 @@ int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct direc
     d->cur = 0;
     d->last = 0;
     int err =  filev6_open(u, inr, &d->fv6);
-    if(!(d->fv6.i_node.i_mode & IFDIR)){
+    if(err >= 0 && !(d->fv6.i_node.i_mode & IFDIR)){
         return ERR_INVALID_DIRECTORY_INODE;
     }
     return err;
@@ -45,10 +45,8 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(prefix);
     struct directory_reader d;
-    //TODO rzjouté
     memset(&d, 0, sizeof(d));
     int open = direntv6_opendir(u, inr, &d);
-    printf("OPEN%d  ", open);
     if(open == ERR_INVALID_DIRECTORY_INODE){           //if file (end of recursion)
         char* c =  strrchr(prefix, PATH_TOKEN);     //return a pointer to last occurrence of '/' in prefix
         *c = '\0';
@@ -57,19 +55,13 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
         printf(SHORT_DIR_NAME" "ROOTDIR_NAME"%s\n", prefix);
         char name[MAXPATHLEN_UV6];
         uint16_t child_inr;
-        printf("IN\n");
-
         while (direntv6_readdir(&d, name, &child_inr) > 0) {
-            printf("child%d, ", child_inr);
-            printf("cur%d, last%d    ", d.cur, d.last);
             char concat[MAXPATHLEN_UV6];
             strcpy(concat, prefix);
             strcat(concat, name);
             strcat(concat, "/");
             direntv6_print_tree(u, child_inr, concat);
         }
-        //if(1) memset(&d, 0, sizeof(d));*/
-        printf("OUT\n\n");
     }
     return 0;
 }
