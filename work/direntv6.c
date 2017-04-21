@@ -66,52 +66,43 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
     return 0;
 }
 
-
-
-
-int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const char *entry,
-                            size_t length) {
+int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char *entry){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(entry);
 
-    //TODO si aucun inode ne correspond à entry --> return ERR_INODE_OUTOF_RANGE
-
     struct directory_reader d;
     int j = direntv6_opendir(u, inr, &d);
-    if (j < 0)
+    if (j < 0){
         return j;
+    }
+    //enlève série initiale de '/'
+    unsigned int offset = 0;
+    while(entry[offset] == '/'){
+        offset++;
+    }
+    int end = 0;
+    unsigned int len = 1;
+    char* next = strchr(entry+offset, '/');
+    if(next == NULL){
+        len = strlen(entry+offset);
+        end = 1;
+    }else{
+        len = next - (entry+offset);
+    }
+    if(len == 0){
+        return inr;
+    }
     char name[MAXPATHLEN_UV6];
     uint16_t child_inr = 0;
     while (direntv6_readdir(&d, name, &child_inr) > 0) {
-        char *end = strchr(entry + 1, '/');
-        //TODO nbr de /
-        unsigned long int length_of_curr = (end < entry + 1) ? length - 1 : end - (entry + 1);
-        int comp = strncmp(name, entry + 1, length_of_curr);
-        if (strrchr(entry + 1, '/') != NULL && length_of_curr<MAXPATHLEN_UV6){ // for directory
-            name[length_of_curr] = '/';
-        }
-        int final_comp = strcmp(entry+1, name);
-
-        if (final_comp == 0) {
-            printf("\n\nINR -------> %d\n\n\n", child_inr);
-            return child_inr;
-        }
-
-        else if (comp == 0) {
-            direntv6_dirlookup_core(u, child_inr, end, length - (length_of_curr + 1));
+        int comp = strncmp(name, entry + offset, len);
+        if(comp == 0){
+            if(end){
+                return child_inr;
+            }else{
+                return direntv6_dirlookup(u, child_inr, entry+offset+len);
+            }
         }
     }
     return 0;
-    //problème : qaund on fait un test avec test-dirent.c <./test-dirent disks/aiw.uv6>
-    // en passant juste "/books/" on a une SEGFAULT
-    // dirlookup retourne toujours 0
-    //ERR_INODE_OUTOF_RANGE;
-}
-
-
-int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char *entry){
-    int j = direntv6_dirlookup_core(u, inr, entry,  strlen(entry));
-    printf("FINAL SORTIE : %d", j);
-    return j;
-    //return direntv6_dirlookup_core(u, 1234, "coucou/", 2);
 }
