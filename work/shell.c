@@ -13,7 +13,7 @@ struct unix_filesystem u;
 typedef int (*shell_fct)(char args[ARG_NB][ARG_LENGTH]);
 
 struct shell_map {
-    const char* name;    // nom de la commande
+    const char* name;   // nom de la commande
     shell_fct fct;      // fonction réalisant la commande
     const char* help;   // description de la commande
     size_t argc;        // nombre d'arguments de la commande
