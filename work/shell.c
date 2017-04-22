@@ -131,7 +131,7 @@ int do_inode(char args[ARG_NB][ARG_LENGTH]){
 int do_istat(char args[ARG_NB][ARG_LENGTH]){
     struct inode i;
     memset(&i, 0, sizeof(i));
-    int err = inode_read(&u, *args[1], &i);
+    int err = inode_read(&u, (uint16_t)*args[1], &i);
     if(err < 0){
         return err;
     }

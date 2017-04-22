@@ -1,9 +1,7 @@
 #include "inode.h"
 #include "sector.h"
 #include "error.h"
-#include <string.h>
 #include <inttypes.h>
-#include <math.h>
 #include <stdlib.h>
 
 /**
