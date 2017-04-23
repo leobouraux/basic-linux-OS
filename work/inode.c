@@ -77,7 +77,7 @@ void inode_print(const struct inode *inode){
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
-    uint16_t size = u->s.s_isize*INODES_PER_SECTOR;
+    long unsigned int size = u->s.s_isize*INODES_PER_SECTOR;
     if(inr > size) {
         return ERR_INODE_OUTOF_RANGE;
     }

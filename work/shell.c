@@ -20,49 +20,6 @@ struct shell_map {
     const char* args;   // description des arguments de la commande
 };
 
-int do_exit(char args[ARG_NB][ARG_LENGTH]);
-
-int do_quit(char args[ARG_NB][ARG_LENGTH]);
-
-int do_help(char args[ARG_NB][ARG_LENGTH]);
-
-int do_mount(char args[ARG_NB][ARG_LENGTH]);
-
-int do_lsall(char args[ARG_NB][ARG_LENGTH]);
-
-int do_psb(char args[ARG_NB][ARG_LENGTH]);
-
-int do_cat(char args[ARG_NB][ARG_LENGTH]);
-
-int do_sha(char args[ARG_NB][ARG_LENGTH]);
-
-int do_inode(char args[ARG_NB][ARG_LENGTH]);
-
-int do_istat(char args[ARG_NB][ARG_LENGTH]);
-
-int do_mkfs(char args[ARG_NB][ARG_LENGTH]);
-
-int do_mkdir(char args[ARG_NB][ARG_LENGTH]);
-
-int do_add(char args[ARG_NB][ARG_LENGTH]);
-
-
-struct shell_map shell_cmds[13] = {
-        { "help", do_help, "display this help", 0, ""},
-        { "exit", do_exit, "exit shell", 0, ""},
-        { "quit", do_quit, "exit shell", 0, ""},
-        { "mkfs", do_mkfs, "create a new filesystem", 3, "<diskname> <#inodes> <#blocks>"},
-        { "mount", do_mount, "mount the provided filesystem", 1, "<diskname>"},
-        { "mkdir", do_mkdir, "create a new directory", 1, "<dirname>"},
-        { "lsall", do_lsall, "list all direcoties and files contained in the currently mounted filesystem", 0, ""},
-        { "add", do_add, "add new file", 2, "<src-fullpath> <dst>"},
-        { "cat", do_cat, "display the content of a file", 1, "<pathname>"},
-        { "istat", do_istat, "display information about the provided inode", 1, "<inode_nr>"},
-        { "inode", do_inode, "display the inode number of a file", 1, "<pathname>"},
-        { "sha", do_sha, "display the Sha file", 1, "<pathname>"},
-        { "psb", do_psb, "print SuperBlock of the currently mounted filesystem", 0, ""}
-};
-
 int do_exit(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
@@ -71,16 +28,7 @@ int do_quit(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
-int do_help(char args[ARG_NB][ARG_LENGTH]){
-    for (int i = 0; i < 13; ++i) {
-        printf("- %s: ", shell_cmds[i].name);
-        if(shell_cmds[i].argc > 0){
-            printf("%s: ", shell_cmds[i].args);
-        }
-        printf("%s\n", shell_cmds[i].help);
-    }
-    return 0;
-}
+int do_help(char args[ARG_NB][ARG_LENGTH]);
 
 int do_mount(char args[ARG_NB][ARG_LENGTH]){
     return mountv6(args[1], &u);
@@ -99,7 +47,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
     struct filev6 fs;
     memset(&fs, 255, sizeof(fs));
-    filev6_open(&u, inr, &fs);
+    filev6_open(&u, (uint16_t)inr, &fs);
     if (fs.i_node.i_mode & IFDIR) {
         printf("ERROR SHELL: cat on a directory is not defined\n");
     } else {
@@ -131,7 +79,7 @@ int do_inode(char args[ARG_NB][ARG_LENGTH]){
 int do_istat(char args[ARG_NB][ARG_LENGTH]){
     struct inode i;
     memset(&i, 0, sizeof(i));
-    int err = inode_read(&u, *args[1], &i);
+    int err = inode_read(&u, (uint16_t)*args[1], &i);
     if(err < 0){
         return err;
     }
@@ -148,6 +96,34 @@ int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
 }
 
 int do_add(char args[ARG_NB][ARG_LENGTH]){
+    return 0;
+}
+
+
+struct shell_map shell_cmds[13] = {
+        { "help", do_help, "display this help", 0, ""},
+        { "exit", do_exit, "exit shell", 0, ""},
+        { "quit", do_quit, "exit shell", 0, ""},
+        { "mkfs", do_mkfs, "create a new filesystem", 3, "<diskname> <#inodes> <#blocks>"},
+        { "mount", do_mount, "mount the provided filesystem", 1, "<diskname>"},
+        { "mkdir", do_mkdir, "create a new directory", 1, "<dirname>"},
+        { "lsall", do_lsall, "list all direcoties and files contained in the currently mounted filesystem", 0, ""},
+        { "add", do_add, "add new file", 2, "<src-fullpath> <dst>"},
+        { "cat", do_cat, "display the content of a file", 1, "<pathname>"},
+        { "istat", do_istat, "display information about the provided inode", 1, "<inode_nr>"},
+        { "inode", do_inode, "display the inode number of a file", 1, "<pathname>"},
+        { "sha", do_sha, "display the Sha file", 1, "<pathname>"},
+        { "psb", do_psb, "print SuperBlock of the currently mounted filesystem", 0, ""}
+};
+
+int do_help(char args[ARG_NB][ARG_LENGTH]){
+    for (int i = 0; i < 13; ++i) {
+        printf("- %s: ", shell_cmds[i].name);
+        if(shell_cmds[i].argc > 0){
+            printf("%s: ", shell_cmds[i].args);
+        }
+        printf("%s\n", shell_cmds[i].help);
+    }
     return 0;
 }
 

@@ -24,7 +24,7 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
         if(readSize <= 0){
             return readSize;
         }else{
-            d->last = readSize / sizeof(struct direntv6);
+            d->last = readSize / (int) sizeof(struct direntv6);
         }
     }
 
@@ -81,7 +81,7 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
         offset++;
     }
     int end = 0;
-    unsigned int len = 1;
+    size_t len = 0;
     char* next = strchr(entry+offset, '/');
     if(next == NULL){
         len = strlen(entry+offset);
