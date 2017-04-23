@@ -24,7 +24,7 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
         if(readSize <= 0){
             return readSize;
         }else{
-            d->last = readSize / (int) sizeof(struct direntv6);
+            d->last = readSize / (int)sizeof(struct direntv6);
         }
     }
 
@@ -32,11 +32,6 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
     name[DIRENT_MAXLEN+1] = '\0';
     strncpy(name, d->dirs[d->cur].d_name, DIRENT_MAXLEN);
     *child_inr = d->dirs[d->cur].d_inumber;
-
-    //TODO
-    //strncpy(name, (d->dirs + d->cur)->d_name, DIRENT_MAXLEN);
-    //*(name+DIRENT_MAXLEN)='\0';
-    //*child_inr = (d->dirs + d->cur)->d_inumber;
 
     d->cur += 1;
     return 1;
@@ -57,9 +52,7 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
         uint16_t child_inr;
         while (direntv6_readdir(&d, name, &child_inr) > 0) {
             char concat[MAXPATHLEN_UV6];
-            strcpy(concat, prefix);
-            strcat(concat, name);
-            strcat(concat, "/");
+            snprintf(concat, MAXPATHLEN_UV6, "%s%s/", prefix, name);
             direntv6_print_tree(u, child_inr, concat);
         }
     }
@@ -76,26 +69,26 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
         return j;
     }
     //enlève série initiale de '/'
-    unsigned int offset = 0;
-    while(entry[offset] == '/'){
+    size_t offset = 0;
+    while(entry[offset] == PATH_TOKEN){
         offset++;
     }
     int end = 0;
-    size_t len = 0;
-    char* next = strchr(entry+offset, '/');
+    size_t len;
+    char* next = strchr(entry+offset, PATH_TOKEN);
     if(next == NULL){
         len = strlen(entry+offset);
         end = 1;
     }else{
-        len = next - (entry+offset);
+        len = (size_t)(next - (entry+offset));
     }
-    if(len == 0){
+    if(len == 0 ){
         return inr;
     }
     char name[MAXPATHLEN_UV6];
     uint16_t child_inr = 0;
     while (direntv6_readdir(&d, name, &child_inr) > 0) {
-        int comp = strncmp(name, entry + offset, len);
+        int comp = strncmp(name, entry + offset, strlen(name));
         if(comp == 0){
             if(end){
                 return child_inr;
@@ -104,5 +97,5 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
             }
         }
     }
-    return 0;
+    return ERR_INODE_OUTOF_RANGE;
 }
