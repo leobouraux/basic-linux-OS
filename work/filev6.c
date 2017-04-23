@@ -21,7 +21,6 @@ int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv
  * @return >0: the number of bytes of the file read; 0: end of file;
  *             the appropriate error code (<0) on error
  */
-//TODO check cast (uint32_t)
 int filev6_readblock(struct filev6 *fv6, void *buf){
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);

@@ -71,7 +71,7 @@ int do_sha(char args[ARG_NB][ARG_LENGTH]){
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
     struct inode inode;
     memset(&inode, 0, sizeof(inode));
-    inode_read(&u, inr, &inode);
+    inode_read(&u, (uint16_t)inr, &inode);
     print_sha_inode(&u, inode, inr);
     return 0;
 }
