@@ -5,14 +5,7 @@
 #include <inttypes.h>
 
 
-/**
- * week04
- * 
- * @brief  mount a unix v6 filesystem
- * @param filename name of the unixv6 filesystem on the underlying disk (IN)
- * @param u the filesystem (OUT)
- * @return 0 on success; <0 on error
- */
+
 int mountv6(const char *filename, struct unix_filesystem *u){
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_NON_NULL(u);
@@ -39,13 +32,8 @@ int mountv6(const char *filename, struct unix_filesystem *u){
     return sector_read(u->f, SUPERBLOCK_SECTOR, &u->s);
 }
 
-/**
- * week04
- * 
- * @brief umount the given filesystem
- * @param u - the mounted filesytem
- * @return 0 on success; <0 on error
- */
+
+
 int umountv6(struct unix_filesystem *u){
     M_REQUIRE_NON_NULL(u);
     
@@ -57,12 +45,8 @@ int umountv6(struct unix_filesystem *u){
     return 0;
 }
 
-/**
- * week04
- * 
- * @brief print to stdout the content of the superblock
- * @param u - the mounted filesytem
- */
+
+
 void mountv6_print_superblock(const struct unix_filesystem *u){	
     printf("**********FS SUPERBLOCK START**********\n");
     printf("s_isize       : %" PRIu16"\n", u->s.s_isize);

@@ -4,14 +4,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
-/**
- * week05 
- * 
- * @brief read all inodes from disk and print out their content to
- *        stdout according to the assignment
- * @param u the filesystem
- * @return 0 on success; < 0 on error.
- */
+
 int inode_scan_print(const struct unix_filesystem *u){
     M_REQUIRE_NON_NULL(u);
 
@@ -44,12 +37,7 @@ int inode_scan_print(const struct unix_filesystem *u){
 }
 
 
-/**
- * week05
- * 
- * @brief prints the content of an inode structure
- * @param inode the inode structure to be displayed
- */
+
 void inode_print(const struct inode *inode){
     printf("**********FS INODE START**********\n");
     if(inode == NULL){
@@ -67,15 +55,7 @@ void inode_print(const struct inode *inode){
 }
 
 
-/**
- * week05
- * 
- * @brief read the content of an inode from disk
- * @param u the filesystem (IN)
- * @param inr the inode number of the inode to read (IN)
- * @param inode the inode structure, read from disk (OUT)
- * @return 0 on success; <0 on error
- */
+
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
@@ -101,15 +81,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 }
 
 
-/**
- * week05
- * 
- * @brief identify the sector that corresponds to a given portion of a file
- * @param u the filesystem (IN)
- * @param inode the inode (IN)
- * @param file_sec_off the offset within the file (in sector-size units)
- * @return >0: the sector on disk;  0: unallocated;  <0 error
- */
+
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);

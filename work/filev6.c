@@ -4,6 +4,7 @@
 #include "sector.h"
 #include "error.h"
 
+
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6){
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(u);
@@ -14,13 +15,8 @@ int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv
     return inode_read(u, inr, &fv6->i_node);
 }
 
-/**
- * @brief read at most SECTOR_SIZE from the file at the current cursor
- * @param fv6 the filev6 (IN-OUT; offset will be changed)
- * @param buf points to SECTOR_SIZE bytes of available memory (OUT)
- * @return >0: the number of bytes of the file read; 0: end of file;
- *             the appropriate error code (<0) on error
- */
+
+
 int filev6_readblock(struct filev6 *fv6, void *buf){
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
@@ -42,14 +38,11 @@ int filev6_readblock(struct filev6 *fv6, void *buf){
     }
 }
 
-/**
- * @brief change the current offset of the given file to the one specified
- * @param fv6 the filev6 (IN-OUT; offset will be changed)
- * @param off the new offset of the file
- * @return 0 on success; <0 on errror
- */
+
+
 int filev6_lseek(struct filev6 *fv6, int32_t offset){
     M_REQUIRE_NON_NULL(fv6);
+
     if(offset > inode_getsize(&fv6->i_node)){
         return ERR_OFFSET_OUT_OF_RANGE;
     }
