@@ -5,6 +5,7 @@
 #include "direntv6.h"
 #include "inode.h"
 #include "sha.h"
+#include "error.h"
 
 struct unix_filesystem u;
 
@@ -28,6 +29,7 @@ struct shell_map {
  * @return
  */
 int do_exit(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     return 0;
 }
 
@@ -37,6 +39,7 @@ int do_exit(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_quit(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     return 0;
 }
 
@@ -53,6 +56,7 @@ int do_help(char args[ARG_NB][ARG_LENGTH]);
  * @return
  */
 int do_mount(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     return mountv6(args[1], &u);
 }
 
@@ -62,6 +66,7 @@ int do_mount(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_lsall(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     return direntv6_print_tree(&u, ROOT_INUMBER, "");
 }
 
@@ -71,6 +76,7 @@ int do_lsall(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_psb(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     mountv6_print_superblock(&u);
     return 0;
 }
@@ -81,6 +87,7 @@ int do_psb(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_cat(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
     struct filev6 fs;
     memset(&fs, 255, sizeof(fs));
@@ -108,6 +115,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_sha(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
     struct inode inode;
     memset(&inode, 0, sizeof(inode));
@@ -122,6 +130,7 @@ int do_sha(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_inode(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
     printf("inode: %d\n", inr);
     return 0;
@@ -133,6 +142,7 @@ int do_inode(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_istat(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     struct inode i;
     memset(&i, 0, sizeof(i));
     long int inr = strtol(args[1], NULL, 10);
@@ -153,6 +163,7 @@ int do_istat(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     return 0;
 }
 
@@ -162,6 +173,7 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     return 0;
 }
 
@@ -171,6 +183,7 @@ int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_add(char args[ARG_NB][ARG_LENGTH]){
+    M_REQUIRE_NON_NULL(args);
     return 0;
 }
 
