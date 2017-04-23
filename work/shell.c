@@ -13,6 +13,23 @@ struct unix_filesystem u;
 #define ARG_NB 4
 #define INPUT_LENGTH ARG_NB * (ARG_LENGTH+1)
 
+enum error_shell {
+    ERR_FIRST_SHELL = 64, // not an actual error but to set the first error number
+    ERR_INVALID_COMMAND,
+    ERR_CAT_ON_DIR,
+    ERR_WRONG_NB_ARG,
+    ERR_FS_NOT_MOUNTED,
+    ERR_LAST_SHELL // not an actual error but to have e.g. the total number of errors
+};
+
+const char * const ERR_MESSAGES_SHELL[] = {
+        "", // no error
+        "invalid command",
+        "cat on a directory is not defined",
+        "wrong number of arguments",
+        "mount the FS before the operation"
+};
+
 typedef int (*shell_fct)(char args[ARG_NB][ARG_LENGTH]);
 
 struct shell_map {
@@ -89,11 +106,17 @@ int do_psb(char args[ARG_NB][ARG_LENGTH]){
 int do_cat(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
+    if(inr < 0){
+        return inr;
+    }
     struct filev6 fs;
     memset(&fs, 255, sizeof(fs));
-    filev6_open(&u, (uint16_t)inr, &fs);
+    int error = filev6_open(&u, (uint16_t)inr, &fs);
+    if(error < 0){
+        return error;
+    }
     if (fs.i_node.i_mode & IFDIR) {
-        printf("ERROR SHELL: cat on a directory is not defined\n");
+        return ERR_CAT_ON_DIR;
     } else {
         char content[SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1];
         int rem = filev6_readblock(&fs, content);
@@ -147,7 +170,7 @@ int do_istat(char args[ARG_NB][ARG_LENGTH]){
     memset(&i, 0, sizeof(i));
     long int inr = strtol(args[1], NULL, 10);
     if(inr < 0){
-        printf("ERROR FS: inode out of range");
+        return ERR_INODE_OUTOF_RANGE;
     }
     int err = inode_read(&u,(uint16_t)inr, &i);
     if(err < 0){
@@ -206,10 +229,11 @@ struct shell_map shell_cmds[13] = {
         { "psb", do_psb, "print SuperBlock of the currently mounted filesystem", 0, ""}
 };
 
-int do_help(char args[ARG_NB][ARG_LENGTH]){
+int do_help(char args[ARG_NB][ARG_LENGTH]) {
+    M_REQUIRE_NON_NULL(args);
     for (int i = 0; i < 13; ++i) {
         printf("- %s: ", shell_cmds[i].name);
-        if(shell_cmds[i].argc > 0){
+        if (shell_cmds[i].argc > 0) {
             printf("%s: ", shell_cmds[i].args);
         }
         printf("%s\n", shell_cmds[i].help);
@@ -222,14 +246,41 @@ int do_help(char args[ARG_NB][ARG_LENGTH]){
  * @param input
  * @param args
  */
-void tokenize_input(char* input, char args[ARG_NB][ARG_LENGTH]){
-    int i = 0;
+size_t tokenize_input(char* input, char args[ARG_NB][ARG_LENGTH]){
+    size_t i = 0;
     char* p = strtok(input, " ");
     while(p != NULL){
         strcpy(args[i], p);
         p = strtok(NULL, " ");
         ++i;
     }
+    return i;
+}
+
+/**
+ * @brief interprete args to find function to run and handle SHELL errors
+ * @param args
+ * @param current
+ * @param argnr
+ * @return
+ */
+int interprete(char args[ARG_NB][ARG_LENGTH], struct shell_map* current, size_t argnr){
+    for (int i = 0; i < 13; ++i) {
+        if(strcmp(args[0], shell_cmds[i].name) == 0){
+            *current = shell_cmds[i];
+        }
+    }
+    if(current->fct == NULL || argnr == 0){
+        return ERR_INVALID_COMMAND;
+    }
+    if(current->argc != argnr - 1){
+        return ERR_WRONG_NB_ARG;
+    }
+    //if FS not mounted
+    if(u.f == NULL && (strcmp(current->name,"help") != 0 && strcmp(current->name,"exit") != 0 && strcmp(current->name,"quit") != 0 && strcmp(current->name,"mount") != 0)){
+        return ERR_FS_NOT_MOUNTED;
+    }
+    return 0;
 }
 
 /**
@@ -241,16 +292,26 @@ int main(){
     char input[INPUT_LENGTH];
     char args[ARG_NB][ARG_LENGTH];
     while (!feof(stdin) && !ferror(stdin) && strcmp(current.name, "quit") && strcmp(current.name, "exit")) {
+        current.fct = NULL;
         printf(">");
         fgets(input, INPUT_LENGTH , stdin);
         input[strcspn(input, "\n")] = 0;
-        tokenize_input(input, args);
-        for (int i = 0; i < 13; ++i) {
-            if(strcmp(args[0], shell_cmds[i].name) == 0){
-                current = shell_cmds[i];
+        size_t argnr = tokenize_input(input, args);
+        int errshell = interprete(args, &current, argnr);
+        int error = 0;
+        if(!errshell){
+            error = current.fct(args);
+        }
+        if (error < 0) {
+            printf("ERROR FS: %s\n",ERR_MESSAGES[error - ERR_FIRST]);
+        }
+        if(error > 0 || errshell){
+            if(errshell > 0){
+                printf("ERROR SHELL: %s\n", ERR_MESSAGES_SHELL[errshell - ERR_FIRST_SHELL]);
+            }else{
+                printf("ERROR SHELL: %s\n", ERR_MESSAGES_SHELL[error - ERR_FIRST_SHELL]);
             }
         }
-        current.fct(args);
     }
     return 0;
 }
