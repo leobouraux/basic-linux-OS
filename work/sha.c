@@ -28,20 +28,19 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inod, int inr) {
 
             //when the inode represent a file
             struct filev6 filv6 = {u, (uint16_t) inr, inod, 0};
-            char content[MAX_LENGTH_OF_FILE + 1];
 
-            //store the content (data) of one sector in content
-            int rem = filev6_readblock(&filv6, content);
+            char content[MAX_LENGTH_OF_FILE + 1];
             content[MAX_LENGTH_OF_FILE] = '\0';
+            char currContent[SECTOR_SIZE + 1];
+            currContent[SECTOR_SIZE] = '\0';
+            int rem = 0;
 
             //while the whole content of the inode is not read, read a sector and store in currContent
             //since the content of an inode (->file or directory) might be larger than one sector
-            while (rem == SECTOR_SIZE) {
-                char currContent[SECTOR_SIZE + 1];
+            do{
                 rem = filev6_readblock(&filv6, currContent);
-                currContent[SECTOR_SIZE] = '\0';
                 strcat(content, currContent);
-            }
+            } while (rem == SECTOR_SIZE);
             print_sha_from_content((unsigned const char *) content, strlen(content));
             memset(content, 0, sizeof(content));
             printf("\n");
