@@ -1,7 +1,6 @@
 #include "mount.h"
 #include "inode.h"
 #include "filev6.h"
-#include <stdio.h>
 #include <string.h>
 #include "sha.h"
 #include "error.h"
@@ -27,7 +26,6 @@ void helper(struct unix_filesystem *u, struct filev6 *fs, uint16_t i){
      }
 }
 
-//TODO check cast uint32_t
 int test(struct unix_filesystem *u) {
     struct filev6 fs;
     memset(&fs, 255, sizeof(fs));

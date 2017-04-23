@@ -29,7 +29,6 @@ void print_sha_from_content(const unsigned char *content, size_t length){
  * @param inode the inode of which we want to print the content
  * @param inr the inode number
  */
-//TODO check cast (uint32_t) et cast (const unsigned char*)
 void print_sha_inode(struct unix_filesystem *u, struct inode inod, int inr) {
     if (inod.i_mode & IALLOC) {
         printf("SHA inode %d: ", inr);
