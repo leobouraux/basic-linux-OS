@@ -277,7 +277,8 @@ int interprete(char args[ARG_NB][ARG_LENGTH], struct shell_map* current, size_t 
         return ERR_WRONG_NB_ARG;
     }
     //if FS not mounted
-    if(u.f == NULL && (strcmp(current->name,"help") != 0 && strcmp(current->name,"exit") != 0 && strcmp(current->name,"quit") != 0 && strcmp(current->name,"mount") != 0)){
+    if(u.f == NULL && (strcmp(current->name,"help") != 0 && strcmp(current->name,"exit") != 0 &&
+            strcmp(current->name,"quit") != 0 && strcmp(current->name,"mount") != 0)){
         return ERR_FS_NOT_MOUNTED;
     }
     return 0;

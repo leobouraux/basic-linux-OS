@@ -36,7 +36,6 @@ int test(struct unix_filesystem *u) {
     printf("Listing inodes SHA:\n");
     int i_count = 0;
     uint16_t size = u->s.s_isize;  /* size in sectors of the inodes */
-    printf("%d", size);
     //for all inodes we can read
     for (uint16_t inc = 0; inc < size; ++inc) {
         struct inode inodes[SECTOR_SIZE];
