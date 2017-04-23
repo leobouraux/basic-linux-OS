@@ -22,29 +22,64 @@ struct shell_map {
     const char* args;   // description des arguments de la commande
 };
 
+/**
+ * @brief exit the shell
+ * @param args
+ * @return
+ */
 int do_exit(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
+/**
+ * @brief quit the shell
+ * @param args
+ * @return
+ */
 int do_quit(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
+/**
+ * @brief print information for each shell commands
+ * @param args
+ * @return
+ */
 int do_help(char args[ARG_NB][ARG_LENGTH]);
 
+/**
+ * @brief mount specified disk
+ * @param args
+ * @return
+ */
 int do_mount(char args[ARG_NB][ARG_LENGTH]){
     return mountv6(args[1], &u);
 }
 
+/**
+ * @brief print content of current directory (root) in tree fashion
+ * @param args
+ * @return
+ */
 int do_lsall(char args[ARG_NB][ARG_LENGTH]){
     return direntv6_print_tree(&u, ROOT_INUMBER, "");
 }
 
+/**
+ * @brief print superblock of current disk
+ * @param args
+ * @return
+ */
 int do_psb(char args[ARG_NB][ARG_LENGTH]){
     mountv6_print_superblock(&u);
     return 0;
 }
 
+/**
+ * @brief print content of specified file
+ * @param args
+ * @return
+ */
 int do_cat(char args[ARG_NB][ARG_LENGTH]){
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
     struct filev6 fs;
@@ -67,6 +102,11 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
+/**
+ * @brief print sha256 of content of specified file
+ * @param args
+ * @return
+ */
 int do_sha(char args[ARG_NB][ARG_LENGTH]){
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
     struct inode inode;
@@ -76,12 +116,22 @@ int do_sha(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
+/**
+ * @brief print corresponding inode to specified absolute path
+ * @param args
+ * @return
+ */
 int do_inode(char args[ARG_NB][ARG_LENGTH]){
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
     printf("inode: %d\n", inr);
     return 0;
 }
 
+/**
+ * @brief print stats about the inode corresponding to specified inr
+ * @param args
+ * @return
+ */
 int do_istat(char args[ARG_NB][ARG_LENGTH]){
     struct inode i;
     memset(&i, 0, sizeof(i));
@@ -97,19 +147,36 @@ int do_istat(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
+/**
+ * @brief unimplemented
+ * @param args
+ * @return
+ */
 int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
+/**
+ * @brief unimplemented
+ * @param args
+ * @return
+ */
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
+/**
+ * @brief unimplemented
+ * @param args
+ * @return
+ */
 int do_add(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
-
+/**
+ * array of all the shell commands
+ */
 struct shell_map shell_cmds[13] = {
         { "help", do_help, "display this help", 0, ""},
         { "exit", do_exit, "exit shell", 0, ""},
@@ -137,6 +204,11 @@ int do_help(char args[ARG_NB][ARG_LENGTH]){
     return 0;
 }
 
+/**
+ * @brief split the user input into argument array
+ * @param input
+ * @param args
+ */
 void tokenize_input(char* input, char args[ARG_NB][ARG_LENGTH]){
     int i = 0;
     char* p = strtok(input, " ");
@@ -147,6 +219,10 @@ void tokenize_input(char* input, char args[ARG_NB][ARG_LENGTH]){
     }
 }
 
+/**
+ * @brief run the shell
+ * @return
+ */
 int main(){
     struct shell_map current = {"", NULL, "", 0, ""};
     char input[INPUT_LENGTH];
