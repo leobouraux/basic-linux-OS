@@ -9,6 +9,8 @@
 int mountv6(const char *filename, struct unix_filesystem *u){
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_NON_NULL(u);
+
+    //initiate the filesystem
     memset(u, 0, sizeof(*u));
     u->fbm = NULL;
     u->ibm = NULL;
@@ -16,6 +18,8 @@ int mountv6(const char *filename, struct unix_filesystem *u){
     if(u->f == NULL){
         return ERR_IO;
     }
+
+    //read boot block to check consistence of disk
     uint8_t content[SECTOR_SIZE];
     int j = sector_read(u->f, BOOTBLOCK_SECTOR, content);
     if(j == ERR_IO || j == ERR_BAD_PARAMETER){
@@ -24,6 +28,7 @@ int mountv6(const char *filename, struct unix_filesystem *u){
     if(content[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM){
         return ERR_BADBOOTSECTOR;
     }
+    //read super block
     return sector_read(u->f, SUPERBLOCK_SECTOR, &u->s);
 }
 

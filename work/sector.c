@@ -8,6 +8,8 @@
 int sector_read(FILE *f, uint32_t sector, void *data){
     M_REQUIRE_NON_NULL(f);
     M_REQUIRE_NON_NULL(data);
+
+    //set file cursor and read the wanted sector
     fseek(f, sector*SECTOR_SIZE, SEEK_SET);
     size_t j = 0;
     j = fread(data, sizeof(uint8_t),SECTOR_SIZE, f);
