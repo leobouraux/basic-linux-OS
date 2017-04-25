@@ -82,14 +82,21 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
         return inr;
     }
     struct filev6 filv6;
-    filev6_open(&fs, (uint16_t)inr, &filv6);
-
+    int err = filev6_open(&fs, (uint16_t)inr, &filv6);
+    if(err < 0){
+        return err;
+    }
+    err = filev6_lseek(&filv6, offset);
+    if(err < 0){
+        return err;
+    }
+    int readsize = 0;
     char currContent[SECTOR_SIZE + 1];
     currContent[SECTOR_SIZE] = '\0';
     int rem = 0;
     do{
-        rem = filev6_readblock(&filv6, currContent);
-        strcat(buf, currContent);
+        rem = filev6_readblock(&filv6, &buf[readsize]);
+        readsize += rem;
     } while (rem == SECTOR_SIZE);
     return 0;
 }
