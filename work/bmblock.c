@@ -51,6 +51,14 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x){
     if(x < bmblock_array->min || bmblock_array->max < x){
         return;
     }
+    uint64_t x_real = x -bmblock_array->min;
+    uint64_t row = bmblock_array->bm[x_real/64];
+
+    uint64_t firsts = (row >> (64 - x_real%64)) << (64 - x_real%64);
+    uint64_t lasts = (row << ((x_real%64)+1)) >> x_real%64;
+
+    bmblock_array->bm[x_real/64] = firsts | lasts;
+
 }
 
 void bm_print(struct bmblock_array *bmblock_array){
