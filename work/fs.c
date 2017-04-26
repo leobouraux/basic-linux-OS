@@ -19,7 +19,6 @@
 #include "mount.h"
 #include "inode.h"
 #include "direntv6.h"
-#include "error.h"
 #include "unixv6fs.h"
 
 #define MAXPATHLEN_UV6 1024
@@ -97,6 +96,7 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
     do{
         rem = filev6_readblock(&filv6, &buf[readsize]);
         readsize += rem;
+        //memcpy
     } while (rem == SECTOR_SIZE);
     return 0;
 }
