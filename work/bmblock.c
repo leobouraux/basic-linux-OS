@@ -3,6 +3,7 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 
 struct bmblock_array *bm_alloc(uint64_t min, uint64_t max){
@@ -42,7 +43,7 @@ void bm_set(struct bmblock_array *bmblock_array, uint64_t x){
         return;
     }
     uint64_t x_real = x -bmblock_array->min;
-    uint64_t tr = (uint64_t)(1 << (x_real % 64));
+    uint64_t tr = (uint64_t)(UINT64_C(1) << (x_real % 64));
     bmblock_array->bm[x_real/64] = bmblock_array->bm[x_real/64] | tr;
 }
 
@@ -54,9 +55,28 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x){
 
 void bm_print(struct bmblock_array *bmblock_array){
     printf("**********BitMap Block START**********\n");
-    printf("length: %", bmblock_array->length);
-    
+    printf("length: %zu\n", bmblock_array->length);
+    printf("min: %"PRIu64"\n", bmblock_array->min);
+    printf("max: %"PRIu64"\n", bmblock_array->max);
+    printf("cursor: %"PRIu64"\n", bmblock_array->cursor);
+    printf("content: \n");
+    for (int i = 0; i < bmblock_array->length; ++i) {
+        uint64_t current = bmblock_array->bm[i];
+        printf("%d:", i);
+        for (int j = 0; j < 64; ++j) {
+            if(j % 8 == 0){
+                printf(" ");
+            }
+            printf("%"PRIu64"", current & 1);
+            current >>= 1;
+        }
+        printf("\n");
+    }
+    printf("**********BitMap Block END************\n");
+}
 
+int bm_find_next(struct bmblock_array *bmblock_array){
+    return 0;
 }
 
 
