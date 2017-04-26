@@ -6,6 +6,8 @@
 #include <inttypes.h>
 
 
+//en mémoire : 1011...01100 <- LSB=0, MSB=1
+//en print   : 0011...01101
 struct bmblock_array *bm_alloc(uint64_t min, uint64_t max){
     if(min > max){
         return NULL;
@@ -34,34 +36,41 @@ int bm_get(struct bmblock_array *bmblock_array, uint64_t x){
     }
     uint64_t x_real = x -bmblock_array->min;
     uint64_t row = bmblock_array->bm[x_real/64];
-    int elem = (int)(row >> (x_real % 64)) & 1;
+    int elem = (int) ((row >> (x_real % 64)) & UINT64_C(1));
     return elem;
 }
+
 
 void bm_set(struct bmblock_array *bmblock_array, uint64_t x){
     if(x < bmblock_array->min || bmblock_array->max < x){
         return;
     }
     uint64_t x_real = x -bmblock_array->min;
-    uint64_t tr = (uint64_t)(UINT64_C(1) << (x_real % 64));
-    bmblock_array->bm[x_real/64] = bmblock_array->bm[x_real/64] | tr;
+    //shift one at the position of x
+    uint64_t one = (uint64_t)(UINT64_C(1) << (x_real % 64));
+    bmblock_array->bm[x_real/64] = bmblock_array->bm[x_real/64] | one;
 }
 
-void bm_clear(struct bmblock_array *bmblock_array, uint64_t x){
-    if(x < bmblock_array->min || bmblock_array->max < x){
+void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
+    if (x < bmblock_array->min || bmblock_array->max < x) {
         return;
     }
-    uint64_t x_real = x -bmblock_array->min;
-    uint64_t row = bmblock_array->bm[x_real/64];
+    uint64_t x_real = x - bmblock_array->min;
+    uint64_t row = bmblock_array->bm[x_real / 64];
+    uint64_t pos = x_real % 64;
 
-    //uint64_t firsts = (row >> (64 - x_real%64)) << (64 - x_real%64);
-    //uint64_t lasts = (row << ((x_real%64)+1)) >> x_real%64;
+    //the 'x-1' firsts bits of the row
+    uint64_t firsts = (pos == 0) ? 0 : (row << (64 - pos)) >> (64 - pos);
+    //the 'x+1' lasts bits of the row
+    if (pos < 63) {
+        row >>= (pos + 1);
+        row <<= (pos + 1);
+    } else row = 0; //when an overflow occurs
+    bmblock_array->bm[x_real / 64] = firsts | row;
 
-    uint64_t firsts = (row << (64 - x_real%64)) >> (64 - x_real%64);
-    uint64_t lasts = (row >> ((x_real%64)+1)) << x_real%64;
-
-    bmblock_array->bm[x_real/64] = firsts | lasts;
-
+    //change the cursor to know where the last 'smaller' 0 is
+    if (bmblock_array->cursor > x_real / 64)
+        bmblock_array->cursor = x_real / 64;
 }
 
 void bm_print(struct bmblock_array *bmblock_array){
@@ -86,8 +95,22 @@ void bm_print(struct bmblock_array *bmblock_array){
     printf("**********BitMap Block END************\n");
 }
 
+
 int bm_find_next(struct bmblock_array *bmblock_array){
-    return 0;
+    uint64_t current_row = bmblock_array->bm[bmblock_array->cursor];
+    uint64_t init_cursor = bmblock_array->cursor;
+    int i = 0;
+    while ((current_row & 1) !=0) {
+        current_row >>= 1;
+        if(i%64 == 63  &&  bmblock_array->cursor < bmblock_array->length-1) {
+            current_row = bmblock_array->bm[++bmblock_array->cursor];
+        }
+        i++;
+    }
+    if(bmblock_array->bm[bmblock_array->cursor] == UINT64_C(-1))
+        return ERR_BITMAP_FULL;
+
+    return (int)(init_cursor*64 + i+bmblock_array->min);
 }
 
 
