@@ -13,8 +13,8 @@ struct bmblock_array *bm_alloc(uint64_t min, uint64_t max){
         return NULL;
     }
     uint64_t bits = max - min + 1;
-    uint64_t length = bits/64;
-    if(bits % 64 != 0){
+    uint64_t length = bits/BITS_PER_VECTOR;
+    if(bits % BITS_PER_VECTOR != 0){
         length += 1;
     }
     struct bmblock_array* bm = NULL;
@@ -35,8 +35,8 @@ int bm_get(struct bmblock_array *bmblock_array, uint64_t x){
         return ERR_BAD_PARAMETER;
     }
     uint64_t x_real = x -bmblock_array->min;
-    uint64_t row = bmblock_array->bm[x_real/64];
-    int elem = (int) ((row >> (x_real % 64)) & UINT64_C(1));
+    uint64_t row = bmblock_array->bm[x_real/BITS_PER_VECTOR];
+    int elem = (int) ((row >> (x_real % BITS_PER_VECTOR)) & UINT64_C(1));
     return elem;
 }
 
@@ -47,8 +47,8 @@ void bm_set(struct bmblock_array *bmblock_array, uint64_t x){
     }
     uint64_t x_real = x -bmblock_array->min;
     //shift one at the position of x
-    uint64_t one = (uint64_t)(UINT64_C(1) << (x_real % 64));
-    bmblock_array->bm[x_real/64] = bmblock_array->bm[x_real/64] | one;
+    uint64_t one = (uint64_t)(UINT64_C(1) << (x_real % BITS_PER_VECTOR));
+    bmblock_array->bm[x_real/BITS_PER_VECTOR] = bmblock_array->bm[x_real/BITS_PER_VECTOR] | one;
 }
 
 void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
@@ -56,21 +56,21 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
         return;
     }
     uint64_t x_real = x - bmblock_array->min;
-    uint64_t row = bmblock_array->bm[x_real / 64];
-    uint64_t pos = x_real % 64;
+    uint64_t row = bmblock_array->bm[x_real / BITS_PER_VECTOR];
+    uint64_t pos = x_real % BITS_PER_VECTOR;
 
     //the 'x-1' firsts bits of the row
-    uint64_t firsts = (pos == 0) ? 0 : (row << (64 - pos)) >> (64 - pos);
+    uint64_t firsts = (pos == 0) ? 0 : (row << (BITS_PER_VECTOR - pos)) >> (BITS_PER_VECTOR - pos);
     //the 'x+1' lasts bits of the row
-    if (pos < 63) {
+    if (pos < BITS_PER_VECTOR-1) {
         row >>= (pos + 1);
         row <<= (pos + 1);
     } else row = 0; //when an overflow occurs
-    bmblock_array->bm[x_real / 64] = firsts | row;
+    bmblock_array->bm[x_real / BITS_PER_VECTOR] = firsts | row;
 
     //change the cursor to know where the last 'smaller' 0 is
-    if (bmblock_array->cursor > x_real / 64)
-        bmblock_array->cursor = x_real / 64;
+    if (bmblock_array->cursor > x_real / BITS_PER_VECTOR)
+        bmblock_array->cursor = x_real / BITS_PER_VECTOR;
 }
 
 void bm_print(struct bmblock_array *bmblock_array){
@@ -83,7 +83,7 @@ void bm_print(struct bmblock_array *bmblock_array){
     for (int i = 0; i < bmblock_array->length; ++i) {
         uint64_t current = bmblock_array->bm[i];
         printf("%d:", i);
-        for (int j = 0; j < 64; ++j) {
+        for (int j = 0; j < BITS_PER_VECTOR; ++j) {
             if(j % 8 == 0){
                 printf(" ");
             }
@@ -102,7 +102,7 @@ int bm_find_next(struct bmblock_array *bmblock_array){
     int i = 0;
     while ((current_row & 1) !=0) {
         current_row >>= 1;
-        if(i%64 == 63  &&  bmblock_array->cursor < bmblock_array->length-1) {
+        if(i%BITS_PER_VECTOR == BITS_PER_VECTOR-1  &&  bmblock_array->cursor < bmblock_array->length-1) {
             current_row = bmblock_array->bm[++bmblock_array->cursor];
         }
         i++;
@@ -110,7 +110,7 @@ int bm_find_next(struct bmblock_array *bmblock_array){
     if(bmblock_array->bm[bmblock_array->cursor] == UINT64_C(-1))
         return ERR_BITMAP_FULL;
 
-    return (int)(init_cursor*64 + i+bmblock_array->min);
+    return (int)(init_cursor*BITS_PER_VECTOR + i+bmblock_array->min);
 }
 
 
