@@ -90,14 +90,18 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
         return err;
     }
     int readsize = 0;
-    char currContent[SECTOR_SIZE + 1];
-    currContent[SECTOR_SIZE] = '\0';
-    int rem = 0;
-    do{
-        rem = filev6_readblock(&filv6, &buf[readsize]);
+    char content[SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1];
+    int rem = filev6_readblock(&filv6, content);
+    content[SECTOR_SIZE * 7 * 256] = '\0';
+    readsize += rem;
+    while (rem == SECTOR_SIZE) {
+        char currContent[SECTOR_SIZE + 1];
+        rem = filev6_readblock(&filv6, currContent);
+        currContent[SECTOR_SIZE] = '\0';
+        strcat(content, currContent);
         readsize += rem;
-        //memcpy
-    } while (rem == SECTOR_SIZE);
+    }
+    memcpy(buf,content,readsize);
     return 0;
 }
 
