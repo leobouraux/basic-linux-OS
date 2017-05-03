@@ -23,7 +23,9 @@ void fill_fbm(struct unix_filesystem *u){
                     int32_t fsize = inode_getsize(&inod);
                     //handle redirections when file too big
                     if(fsize > ADDR_SMALL_LENGTH*SECTOR_SIZE){
-                        bm_set(u->fbm, inod.i_addr[0]);
+                        for (int k = 0; k <= (fsize/SECTOR_SIZE)/ADDRESSES_PER_SECTOR; ++k) {
+                            bm_set(u->fbm, inod.i_addr[k]);
+                        }
                     }
                     //find sectors for current inode
                     while (fsize > offset){
