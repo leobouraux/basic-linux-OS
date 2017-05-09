@@ -1,13 +1,9 @@
 #include "bmblock.h"
 #include "error.h"
-#include <memory.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <inttypes.h>
+#include <memory.h>
 
-
-//en mémoire : 1011...01100 <- LSB=0, MSB=1
-//en print   : 0011...01101
 struct bmblock_array *bm_alloc(uint64_t min, uint64_t max){
     if(min > max){
         return NULL;
@@ -31,6 +27,7 @@ struct bmblock_array *bm_alloc(uint64_t min, uint64_t max){
 }
 
 int bm_get(struct bmblock_array *bmblock_array, uint64_t x){
+    M_REQUIRE_NON_NULL(bmblock_array);
     if(x < bmblock_array->min || bmblock_array->max < x){
         return ERR_BAD_PARAMETER;
     }
@@ -42,7 +39,7 @@ int bm_get(struct bmblock_array *bmblock_array, uint64_t x){
 
 
 void bm_set(struct bmblock_array *bmblock_array, uint64_t x){
-    if(x < bmblock_array->min || bmblock_array->max < x){
+    if(bmblock_array == NULL || x < bmblock_array->min || bmblock_array->max < x){
         return;
     }
     uint64_t x_real = x -bmblock_array->min;
@@ -52,7 +49,7 @@ void bm_set(struct bmblock_array *bmblock_array, uint64_t x){
 }
 
 void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
-    if (x < bmblock_array->min || bmblock_array->max < x) {
+    if (bmblock_array == NULL || x < bmblock_array->min || bmblock_array->max < x) {
         return;
     }
     uint64_t x_real = x - bmblock_array->min;
@@ -80,10 +77,10 @@ void bm_print(struct bmblock_array *bmblock_array){
     printf("max: %"PRIu64"\n", bmblock_array->max);
     printf("cursor: %"PRIu64"\n", bmblock_array->cursor);
     printf("content: \n");
-    for (int i = 0; i < bmblock_array->length; ++i) {
+    for (unsigned int i = 0; i < bmblock_array->length; ++i) {
         uint64_t current = bmblock_array->bm[i];
         printf("%d:", i);
-        for (int j = 0; j < BITS_PER_VECTOR; ++j) {
+        for (unsigned int j = 0; j < BITS_PER_VECTOR; ++j) {
             if(j % 8 == 0){
                 printf(" ");
             }
@@ -97,6 +94,7 @@ void bm_print(struct bmblock_array *bmblock_array){
 
 
 int bm_find_next(struct bmblock_array *bmblock_array){
+    M_REQUIRE_NON_NULL(bmblock_array);
     uint64_t current_row = bmblock_array->bm[bmblock_array->cursor];
     uint64_t init_cursor = bmblock_array->cursor;
     int i = 0;

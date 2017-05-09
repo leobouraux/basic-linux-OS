@@ -85,24 +85,16 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
     if(err < 0){
         return err;
     }
-    err = filev6_lseek(&filv6, offset);
+    err = filev6_lseek(&filv6, (uint32_t)offset);
     if(err < 0){
         return err;
     }
+    size_t totalSize = 0;
     int readsize = 0;
-    char content[SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1];
-    int rem = filev6_readblock(&filv6, content);
-    content[SECTOR_SIZE * 7 * 256] = '\0';
-    readsize += rem;
-    while (rem == SECTOR_SIZE) {
-        char currContent[SECTOR_SIZE + 1];
-        rem = filev6_readblock(&filv6, currContent);
-        currContent[SECTOR_SIZE] = '\0';
-        strcat(content, currContent);
-        readsize += rem;
+    while (totalSize < size && ((readsize = filev6_readblock(&filv6, &buf[totalSize])) > 0)){
+        totalSize += (size_t)readsize;
     }
-    memcpy(buf,content,readsize);
-    return 0;
+    return (int)totalSize;
 }
 
 static struct fuse_operations available_ops = {

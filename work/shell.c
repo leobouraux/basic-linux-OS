@@ -118,14 +118,13 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
     if (fs.i_node.i_mode & IFDIR) {
         return ERR_CAT_ON_DIR;
     } else {
-        char content[SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1];
-        int rem = filev6_readblock(&fs, content);
-        content[SECTOR_SIZE * 7 * 256] = '\0';
-        while (rem == SECTOR_SIZE) {
-            char currContent[SECTOR_SIZE + 1];
-            rem = filev6_readblock(&fs, currContent);
-            currContent[SECTOR_SIZE] = '\0';
-            strcat(content, currContent);
+        size_t maxSize = SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1;
+        char content[maxSize];
+        memset(content, 0, maxSize * sizeof(char));
+        size_t totalSize = 0;
+        int readsize = 0;
+        while (totalSize < maxSize && ((readsize = filev6_readblock(&fs, &content[totalSize])) > 0)){
+            totalSize += (size_t)readsize;
         }
         printf("%s", content);
     }

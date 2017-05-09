@@ -104,7 +104,10 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     }else {
         //big file, need second level addressing
         uint16_t data[SECTOR_SIZE];
-        sector_read(u->f, i->i_addr[file_sec_off / (ADDRESSES_PER_SECTOR)], data);
+        int err = sector_read(u->f, i->i_addr[file_sec_off / (ADDRESSES_PER_SECTOR)], data);
+        if(err < 0){
+            return err;
+        }
         return data[file_sec_off % ADDRESSES_PER_SECTOR];
     }
 }
