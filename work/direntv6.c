@@ -160,5 +160,5 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
         return err;
     }
     struct direntv6 dir = {0};
-
+    return 0;
 }
