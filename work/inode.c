@@ -123,3 +123,12 @@ int inode_write(struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
     inodes[inr % INODES_PER_SECTOR] = *inode;
     return sector_write(u->f, (uint32_t) (start + block_offset), inodes);
 }
+
+int inode_alloc(struct unix_filesystem *u){
+    int inr = bm_find_next(u->ibm);
+    if(inr < 0){
+        return ERR_NOMEM;
+    }
+    bm_set(u->ibm, (uint64_t)inr);
+    return inr;
+}

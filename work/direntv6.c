@@ -2,6 +2,7 @@
 #include "direntv6.h"
 #include "error.h"
 #include <string.h>
+#include "inode.h"
 #define MAXPATHLEN_UV6 1024
 
 int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct directory_reader *d){
@@ -122,4 +123,42 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
         }
     }
     return ERR_INODE_OUTOF_RANGE;
+}
+
+int direntv6_test_available(struct unix_filesystem *u, const char *entry){
+    char relative[14];
+    char parent[30];
+    strncpy(relative, strrchr(entry, '/')+1, 14);
+    strncpy(parent, entry, strlen(entry)-strlen(relative)); //TODO better handling
+    printf("relative : %s\n",relative);
+    printf("parent : %s\n",parent);
+    int parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent);
+    if(parent_inr < 0){
+        return ERR_BAD_PARAMETER;
+    }
+    int child_inr = direntv6_dirlookup(u, (uint16_t)parent_inr, relative);
+    if(child_inr >= 0){
+        return ERR_FILENAME_ALREADY_EXISTS;
+    }
+    return 0;
+
+}
+
+int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode){
+    int err = direntv6_test_available(u, entry);
+    if(err < 0){
+        return err;
+    }
+    int inr = inode_alloc(u);
+    if(inr < 0){
+        return inr;
+    }
+    struct inode ind = {0};
+    struct filev6 fv6 = {u, (uint16_t)inr,ind,0};
+    err = filev6_create(u, mode, &fv6);
+    if(err < 0){
+        return err;
+    }
+    struct direntv6 dir = {0};
+
 }
