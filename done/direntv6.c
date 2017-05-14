@@ -2,6 +2,8 @@
 #include "direntv6.h"
 #include "error.h"
 #include <string.h>
+#include "filev6.h"
+#include "inode.h"
 #define MAXPATHLEN_UV6 1024
 
 int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct directory_reader *d){
@@ -122,4 +124,59 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
         }
     }
     return ERR_INODE_OUTOF_RANGE;
+}
+
+/**
+ * @brief helper function checking if entry is a valid path to write and computes relative_name and parent_inr
+ * @param u
+ * @param entry
+ * @param relative_name
+ * @param parent_inr
+ * @return 0 on success, error code otherwise
+ */
+int direntv6_test_available(struct unix_filesystem *u, const char *entry, char *relative_name, int *parent_inr){
+    char parent[30];
+    strncpy(relative_name, strrchr(entry, '/')+1, 14);
+    strncpy(parent, entry, strlen(entry)-strlen(relative_name)); //TODO better handling
+    printf("relative : %s\n",relative_name);
+    printf("parent : %s\n",parent);
+    *parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent);
+    if(*parent_inr < 0){
+        return ERR_BAD_PARAMETER;
+    }
+    int child_inr = direntv6_dirlookup(u, (uint16_t)*parent_inr, relative_name);
+    if(child_inr >= 0){
+        return ERR_FILENAME_ALREADY_EXISTS;
+    }
+    return 0;
+
+}
+
+int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode){
+    char relative_name[14];
+    int parent_inr = 0;
+    int err = direntv6_test_available(u, entry, relative_name, &parent_inr);
+    if(err < 0){
+        return err;
+    }
+    int inr = inode_alloc(u);
+    if(inr < 0){
+        return inr;
+    }
+    struct inode ind = {0};
+    struct filev6 fv6 = {u, (uint16_t)inr,ind,0};
+    err = filev6_create(u, mode, &fv6);
+    if(err < 0){
+        return err;
+    }
+    struct direntv6 dir = {0};
+    dir.d_inumber = (uint16_t)inr;
+    strncpy(dir.d_name, relative_name, 14);
+
+    struct inode parent_inode = {0};
+    inode_read(u, (uint16_t)parent_inr, &parent_inode);
+    struct filev6 parent = {u, (uint16_t)parent_inr, parent_inode,0};
+
+    filev6_writebytes(u, &parent, &dir, sizeof(dir));
+    return 0;
 }
