@@ -93,7 +93,7 @@ int mountv6(const char *filename, struct unix_filesystem *u){
         u->ibm = bm_alloc(u->s.s_inode_start, (uint64_t)(u->s.s_isize * INODES_PER_SECTOR));
         u->s.s_ibmsize = (uint16_t)u->ibm->length;
         fill_ibm(u);
-        u->fbm = bm_alloc((uint16_t)u->s.s_block_start+1, (uint64_t)(u->s.s_fsize));
+        u->fbm = bm_alloc((uint16_t)(u->s.s_block_start+1), (uint64_t)(u->s.s_fsize));
         u->s.s_fbmsize = (uint16_t)u->fbm->length;
         fill_fbm(u);
     }
