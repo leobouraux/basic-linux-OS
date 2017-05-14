@@ -18,7 +18,7 @@ int test(struct unix_filesystem *u){
     printf("err create : %d\n", err);
     //printf("err write : %d\n", err2);
     inode_scan_print(u);
-    inode_read(u, 6, &i);
+    inode_read(u, 1, &i);
     inode_print(&i);
 
     return 0;
