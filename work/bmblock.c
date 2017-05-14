@@ -97,7 +97,7 @@ int bm_find_next(struct bmblock_array *bmblock_array){
     M_REQUIRE_NON_NULL(bmblock_array);
     uint64_t current_row = bmblock_array->bm[bmblock_array->cursor];
     uint64_t init_cursor = bmblock_array->cursor;
-    int i = 0;
+    unsigned int i = 0;
     while ((current_row & 1) !=0) {
         current_row >>= 1;
         if(i%BITS_PER_VECTOR == BITS_PER_VECTOR-1  &&  bmblock_array->cursor < bmblock_array->length-1) {
