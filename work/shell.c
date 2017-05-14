@@ -180,12 +180,13 @@ int do_istat(char args[ARG_NB][ARG_LENGTH]){
 }
 
 /**
- * @brief unimplemented
+ * @brief create a new filesystem
  * @param args
  * @return
  */
 int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
+    //convert string to long int
     long int nbBlocks = strtol(args[3], NULL, 10);
     long int nbInodes = strtol(args[2], NULL, 10);
     return mountv6_mkfs(args[1], (uint16_t)nbBlocks, (uint16_t)nbInodes);;
