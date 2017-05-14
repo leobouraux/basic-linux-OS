@@ -2,6 +2,7 @@
 #include "direntv6.h"
 #include "error.h"
 #include <string.h>
+#include "filev6.h"
 #include "inode.h"
 #define MAXPATHLEN_UV6 1024
 

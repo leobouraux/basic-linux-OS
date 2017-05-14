@@ -20,6 +20,7 @@
 #include "inode.h"
 #include "direntv6.h"
 #include "unixv6fs.h"
+#include "error.h"
 
 #define MAXPATHLEN_UV6 1024
 
@@ -39,10 +40,12 @@ static int fs_getattr(const char *path, struct stat *stbuf)
         return err;
     }
     stbuf->st_size = inode_getsize(&i);
+    //modes
+    stbuf->st_mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
     if(i.i_mode & IFDIR){
-        stbuf->st_mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH | S_IFDIR;
+         stbuf->st_mode |= S_IFDIR;
     }else{
-        stbuf->st_mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH | S_IFREG;
+        stbuf->st_mode |= S_IFREG;
     }
     return 0;
 }
@@ -58,8 +61,7 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     if(inr < 0){
         return inr;
     }
-    struct directory_reader d;
-    memset(&d, 0, sizeof(d));
+    struct directory_reader d = {0};
     int open = direntv6_opendir(&fs, (uint16_t)inr, &d);
     if(open < 0){
         return open;
@@ -116,7 +118,7 @@ static int arg_parse(void *data, const char *filename, int key, struct fuse_args
     if (key == FUSE_OPT_KEY_NONOPT && fs.f == NULL && filename != NULL) {
         int err = mountv6(filename, &fs);
         if(err < 0){
-            printf("%d", err);
+            printf("%s\n", ERR_MESSAGES[err - ERR_FIRST]);
             exit(1);
         }
         return 0;

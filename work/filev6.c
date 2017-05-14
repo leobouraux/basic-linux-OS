@@ -66,3 +66,7 @@ int filev6_create(struct unix_filesystem *u, uint16_t mode, struct filev6 *fv6){
     fv6->i_node = ind;
     return 0;
 }
+
+int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, int len){
+    return 0;
+}
