@@ -60,7 +60,6 @@ int filev6_create(struct unix_filesystem *u, uint16_t mode, struct filev6 *fv6){
     struct inode ind = {0};
     ind.i_mode = mode;
     int err = inode_write(u, fv6->i_number ,&ind);
-    printf("errdansF° : %d\n", err);
     if(err < 0){
         return err;
     }

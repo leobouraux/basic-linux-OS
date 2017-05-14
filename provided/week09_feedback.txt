@@ -671,7 +671,7 @@ make failed.
 
 -----
 stderr:
-/tmp/cck0bJgl.o: In function `bitmap_test_simple':
+/tmp/ccAtOzMQ.o: In function `bitmap_test_simple':
 /home/whitlock/pps/pps17_repos/team/repositories/pps17-team-olympique-de-marseille/repository/done/test-bitmap.c:27: undefined reference to `bm_alloc'
 /home/whitlock/pps/pps17_repos/team/repositories/pps17-team-olympique-de-marseille/repository/done/test-bitmap.c:28: undefined reference to `bm_print'
 /home/whitlock/pps/pps17_repos/team/repositories/pps17-team-olympique-de-marseille/repository/done/test-bitmap.c:29: undefined reference to `bm_find_next'
