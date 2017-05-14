@@ -118,14 +118,13 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
     if (fs.i_node.i_mode & IFDIR) {
         return ERR_CAT_ON_DIR;
     } else {
-        char content[SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1];
-        int rem = filev6_readblock(&fs, content);
-        content[SECTOR_SIZE * 7 * 256] = '\0';
-        while (rem == SECTOR_SIZE) {
-            char currContent[SECTOR_SIZE + 1];
-            rem = filev6_readblock(&fs, currContent);
-            currContent[SECTOR_SIZE] = '\0';
-            strcat(content, currContent);
+        size_t maxSize = SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1;
+        char content[maxSize];
+        memset(content, 0, maxSize * sizeof(char));
+        size_t totalSize = 0;
+        int readsize = 0;
+        while (totalSize < maxSize && ((readsize = filev6_readblock(&fs, &content[totalSize])) > 0)){
+            totalSize += (size_t)readsize;
         }
         printf("%s", content);
     }
@@ -181,13 +180,16 @@ int do_istat(char args[ARG_NB][ARG_LENGTH]){
 }
 
 /**
- * @brief unimplemented
+ * @brief create a new filesystem
  * @param args
  * @return
  */
 int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
-    return 0;
+    //convert string to long int
+    long int nbBlocks = strtol(args[3], NULL, 10);
+    long int nbInodes = strtol(args[2], NULL, 10);
+    return mountv6_mkfs(args[1], (uint16_t)nbBlocks, (uint16_t)nbInodes);;
 }
 
 /**
@@ -197,7 +199,7 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
  */
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
-    return 0;
+    return direntv6_create(&u, args[1],IFDIR);
 }
 
 /**
@@ -220,7 +222,7 @@ struct shell_map shell_cmds[13] = {
         { "mkfs", do_mkfs, "create a new filesystem", 3, "<diskname> <#inodes> <#blocks>"},
         { "mount", do_mount, "mount the provided filesystem", 1, "<diskname>"},
         { "mkdir", do_mkdir, "create a new directory", 1, "<dirname>"},
-        { "lsall", do_lsall, "list all direcoties and files contained in the currently mounted filesystem", 0, ""},
+        { "lsall", do_lsall, "list all directories and files contained in the currently mounted filesystem", 0, ""},
         { "add", do_add, "add new file", 2, "<src-fullpath> <dst>"},
         { "cat", do_cat, "display the content of a file", 1, "<pathname>"},
         { "istat", do_istat, "display information about the provided inode", 1, "<inode_nr>"},
