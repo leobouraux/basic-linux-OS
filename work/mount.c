@@ -140,7 +140,7 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     spb.s_fsize = num_blocks;
     if(spb.s_fsize < spb.s_isize)
         return ERR_NOT_ENOUGH_BLOCS;
-    spb.s_inode_start = SUPERBLOCK_SECTOR+1;  //TODO demander ou sont les block bitmaps
+    spb.s_inode_start = SUPERBLOCK_SECTOR+1;  //les blocks de bitmaps ne sont pas stockés sur le disk mais calculé au démarage
     spb.s_block_start = spb.s_inode_start + spb.s_isize;
 
     //create a binary file
@@ -162,7 +162,10 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
 
     //set and write all inodes sectors to 0 between     s_inode_start+1  and  s_block_start-1
     struct inode sectorOfInodes[INODES_PER_SECTOR] = {0};
-    sectorOfInodes[0].i_mode = IFDIR; //TODO mettre la size ?
+    sectorOfInodes[0].i_mode = IFDIR | IALLOC;
+    sectorOfInodes[0].i_size0 = 0;
+    sectorOfInodes[0].i_size1 = 0;
+    sectorOfInodes[0].i_addr[0] =  (uint16_t) (spb.s_block_start + 1);
 
     for (uint32_t i = spb.s_inode_start; i < (uint32_t)(spb.s_block_start-1); ++i) {
         err = sector_write(f, i, sectorOfInodes);
@@ -170,6 +173,8 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
             return err;
         }
     }
+
+    fclose(f);
 
     return 0;
 }

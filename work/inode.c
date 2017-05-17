@@ -49,6 +49,7 @@ void inode_print(const struct inode *inode) {
         printf("i_size0: %" PRIu8"\n", inode->i_size0);
         printf("i_size1: %" PRIu16"\n", inode->i_size1);
         printf("size: %" PRIu16"\n", inode_getsize(inode));
+
     }
     printf("**********FS INODE END**********\n");
 }
