@@ -205,7 +205,7 @@ struct inode {
     uint8_t i_gid;							/* identifier of the file group - NON USED */
     uint8_t i_size0;						/* 8 LSB of the file size */
     uint16_t i_size1;						/* 16 MSB of the file size */
-    uint16_t i_addr[ADDR_SMALL_LENGTH];		/* store sector number where file datas are */
+    uint16_t i_addr[ADDR_SMALL_LENGTH]; 	/* store sector number where file datas are */
     uint16_t i_atime[2];					/* store the date of the last file access - NON USED */
     uint16_t i_mtime[2];					/* store the date of the last file modification - NON USED */
 };
