@@ -1,0 +1,35 @@
+Submission accepted
+
+stdout:
+=====
+Attempting to make target shell
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-inodes.o test-inodes.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-core.o test-core.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o error.o error.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o mount.o mount.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o sector.o sector.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o inode.o inode.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o filev6.o filev6.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o bmblock.o bmblock.c
+gcc   test-inodes.o test-core.o error.o mount.o sector.o inode.o filev6.o bmblock.o  -lm -lcrypto -o test-inodes
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-file.o test-file.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o sha.o sha.c
+gcc   test-file.o test-core.o error.o mount.o sector.o inode.o filev6.o sha.o bmblock.o  -lm -lcrypto -o test-file
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-dirent.o test-dirent.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o direntv6.o direntv6.c
+gcc   test-dirent.o test-core.o error.o mount.o sector.o inode.o sha.o filev6.o direntv6.o bmblock.o  -lm -lcrypto -o test-dirent
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o shell.o shell.c
+gcc   shell.o filev6.o direntv6.o error.o sector.o inode.o sha.o mount.o bmblock.o  -lm -lcrypto -o shell
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -D_DEFAULT_SOURCE $(pkg-config fuse --cflags) -o fs.o -c fs.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code    -o fs fs.o mount.o sector.o inode.o filev6.o direntv6.o error.o bmblock.o -lm -lcrypto $(pkg-config fuse --libs)
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-bitmap.o test-bitmap.c
+gcc   test-bitmap.o bmblock.o  -lm -lcrypto -o test-bitmap
+Made target shell successfully
+=====
+Attempting to make target fs
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code    -o fs fs.o mount.o sector.o inode.o filev6.o direntv6.o error.o bmblock.o -lm -lcrypto $(pkg-config fuse --libs)
+Made target fs successfully
+Submission accepted
+
+-----
+stderr:
