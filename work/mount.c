@@ -136,7 +136,7 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     //1.
     //comment representer un super block qui est un secteur different des secteurs avec inode
     struct superblock spb = {0};
-    spb.s_isize = num_inodes / INODES_PER_SECTOR;
+    spb.s_isize =  num_inodes % INODES_PER_SECTOR == 0 ? num_inodes / INODES_PER_SECTOR : num_inodes / INODES_PER_SECTOR + 1;
     spb.s_fsize = num_blocks;
     if(spb.s_fsize < spb.s_isize)
         return ERR_NOT_ENOUGH_BLOCS;
@@ -144,7 +144,7 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     spb.s_block_start = spb.s_inode_start + spb.s_isize;
 
     //create a binary file
-    FILE* f = fopen(filename, "w");
+    FILE* f = fopen(filename, "wb");
 
     //create abd write the bootblock sector
     uint8_t bootblock[SECTOR_SIZE];

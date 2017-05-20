@@ -114,7 +114,7 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
     //while there is still a file to read, it compares name to the current entry
     while (direntv6_readdir(&d, name, &child_inr) > 0) {
         int comp = strncmp(name, entry + offset, strlen(name));
-        if(comp == 0){
+        if(comp == 0 && len == strlen(name)){
             //when it's a file
             if(end){
                 return child_inr;
@@ -136,10 +136,12 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
  */
 int direntv6_test_available(struct unix_filesystem *u, const char *entry, char *relative_name, int *parent_inr){
     char parent[30];
-    strncpy(relative_name, strrchr(entry, '/')+1, 14);
-    strncpy(parent, entry, strlen(entry)-strlen(relative_name)); //TODO better handling
-    printf("relative : %s\n",relative_name);
-    printf("parent : %s\n",parent);
+    char *limit = strrchr(entry, '/'); //TODO handle / at the end
+    if(limit == NULL){
+        return ERR_BAD_PARAMETER;
+    }
+    strncpy(relative_name, limit+1, 14);
+    strncpy(parent, entry, strlen(entry)-strlen(relative_name));
     *parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent);
     if(*parent_inr < 0){
         return ERR_BAD_PARAMETER;

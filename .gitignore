@@ -5,3 +5,5 @@
 !*.txt
 !makefile
 .gitignore
+CMakeLists.txt
+cmake-build-debug/

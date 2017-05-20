@@ -189,7 +189,7 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
     //convert string to long int
     long int nbBlocks = strtol(args[3], NULL, 10);
     long int nbInodes = strtol(args[2], NULL, 10);
-    return mountv6_mkfs(args[1], (uint16_t)nbBlocks, (uint16_t)nbInodes);;
+    return mountv6_mkfs(args[1], (uint16_t)nbBlocks, (uint16_t)nbInodes);
 }
 
 /**
@@ -280,7 +280,7 @@ int interprete(char args[ARG_NB][ARG_LENGTH], struct shell_map* current, size_t 
     }
     //if FS not mounted
     if(u.f == NULL && (strcmp(current->name,"help") != 0 && strcmp(current->name,"exit") != 0 &&
-            strcmp(current->name,"quit") != 0 && strcmp(current->name,"mount") != 0)){
+            strcmp(current->name,"quit") != 0 && strcmp(current->name,"mount") != 0 && strcmp(current->name,"mkfs") != 0)){ //TODO on èeut mieux faire
         return ERR_FS_NOT_MOUNTED;
     }
     return 0;
