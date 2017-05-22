@@ -64,15 +64,14 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     if (inr > size) {
         return ERR_INODE_OUTOF_RANGE;
     }
-
     //read the corresponding sector to inr
     uint16_t start = u->s.s_inode_start;
     uint16_t block_offset = inr / INODES_PER_SECTOR;
     struct inode inodes[SECTOR_SIZE];
     int err = sector_read(u->f, (uint32_t) (start + block_offset), inodes);
-
     //instanciate the inode from the array
     *inode = inodes[inr % INODES_PER_SECTOR];
+    printf("f_inode_read1 ");
     if (!(inode->i_mode & IALLOC)) {
         return ERR_UNALLOCATED_INODE;
     }

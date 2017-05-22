@@ -7,6 +7,8 @@
 #include "sha.h"
 #include "error.h"
 
+#define DEBUG 1
+
 struct unix_filesystem u;
 
 #define ARG_LENGTH 30
@@ -199,6 +201,7 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
  */
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
+    printf("a ");
     return direntv6_create(&u, args[1],IFDIR);
 }
 
@@ -279,8 +282,11 @@ int interprete(char args[ARG_NB][ARG_LENGTH], struct shell_map* current, size_t 
         return ERR_WRONG_NB_ARG;
     }
     //if FS not mounted
-    if(u.f == NULL && (strcmp(current->name,"help") != 0 && strcmp(current->name,"exit") != 0 &&
-            strcmp(current->name,"quit") != 0 && strcmp(current->name,"mount") != 0 && strcmp(current->name,"mkfs") != 0)){ //TODO on èeut mieux faire
+    if(u.f == NULL && strcmp(current->name,"help")!=0
+                       && strcmp(current->name,"exit")!=0
+                       && strcmp(current->name,"quit")!=0
+                       && strcmp(current->name,"mount")!=0
+                       && strcmp(current->name,"mkfs")!=0){ //TODO on peut mieux faire (c'est les 5 premieres f°)
         return ERR_FS_NOT_MOUNTED;
     }
     return 0;

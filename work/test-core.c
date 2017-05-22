@@ -38,6 +38,7 @@ void check_args(int argc)
 
 int main(int argc, char *argv[])
 {
+
     // Check the number of args but remove program's name
     check_args(argc - 1);
 

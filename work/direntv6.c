@@ -9,12 +9,14 @@
 int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct directory_reader *d){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(d);
+    printf("f1a ");fflush(stdout);
     d->cur = 0;
     d->last = 0;
     int err =  filev6_open(u, inr, &d->fv6);
-    if(err >= 0 && !(d->fv6.i_node.i_mode & IFDIR)){
+    if(err >= 0 && !(d->fv6.i_node.i_mode & IFDIR)) {
         return ERR_INVALID_DIRECTORY_INODE;
     }
+    printf("f1b + err : %d : %s     ", err, ERR_MESSAGES[err - ERR_FIRST]);fflush(stdout);
     return err;
 }
 
@@ -53,7 +55,6 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
     struct directory_reader d;
     memset(&d, 0, sizeof(d));
     int open = direntv6_opendir(u, inr, &d);
-
     //if file (end of recursion)
     if(open == ERR_INVALID_DIRECTORY_INODE){
         char* c =  strrchr(prefix, PATH_TOKEN);        //return a pointer to last occurrence of '/' in prefix
@@ -81,18 +82,22 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(entry);
 
+    printf("f1 ");
+
     struct directory_reader d;
     int j = direntv6_opendir(u, inr, &d);
     //return possible errors coming from direntv6_opendir()
     if (j < 0){
         return j;
     }
+
+    printf("f2 ");
     //delete initial chars '/'
     size_t offset = 0;
     while(entry[offset] == PATH_TOKEN){
         offset++;
     }
-
+    printf("f3 ");
     int end = 0;
     size_t len;
     char* next = strchr(entry+offset, PATH_TOKEN);  //the next directory or file in the tree
@@ -102,7 +107,7 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
     }else{
         len = (size_t)(next - (entry+offset));
     }
-
+    printf("f4 ");
     //case in which we search a directory, and its name is followed by multiples '/'
     if(len == 0 ){
         return inr;
@@ -110,7 +115,7 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
 
     char name[MAXPATHLEN_UV6];
     uint16_t child_inr = 0;
-
+    printf("f5 ");
     //while there is still a file to read, it compares name to the current entry
     while (direntv6_readdir(&d, name, &child_inr) > 0) {
         int comp = strncmp(name, entry + offset, strlen(name));
@@ -123,6 +128,7 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
             }
         }
     }
+    printf("e6 ");
     return ERR_INODE_OUTOF_RANGE;
 }
 
@@ -135,17 +141,32 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
  * @return 0 on success, error code otherwise
  */
 int direntv6_test_available(struct unix_filesystem *u, const char *entry, char *relative_name, int *parent_inr){
-    char parent[30];
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(entry);
+    M_REQUIRE_NON_NULL(relative_name);
+    M_REQUIRE_NON_NULL(parent_inr);
+
+    printf("c ");
+
+    char parent[30] = {0};
+    printf("d ");
     char *limit = strrchr(entry, '/'); //TODO handle / at the end
     if(limit == NULL){
         return ERR_BAD_PARAMETER;
     }
+    printf("e ");
+
     strncpy(relative_name, limit+1, 14);
     strncpy(parent, entry, strlen(entry)-strlen(relative_name));
+
+    printf("f ");
+
     *parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent);
     if(*parent_inr < 0){
         return ERR_BAD_PARAMETER;
     }
+    printf("g ");
+
     int child_inr = direntv6_dirlookup(u, (uint16_t)*parent_inr, relative_name);
     if(child_inr >= 0){
         return ERR_FILENAME_ALREADY_EXISTS;
@@ -155,12 +176,17 @@ int direntv6_test_available(struct unix_filesystem *u, const char *entry, char *
 }
 
 int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode){
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(entry);
+    printf("b ");
     char relative_name[14];
     int parent_inr = 0;
     int err = direntv6_test_available(u, entry, relative_name, &parent_inr);
     if(err < 0){
         return err;
     }
+    printf("h ");
+
     int inr = inode_alloc(u);
     if(inr < 0){
         return inr;
@@ -178,7 +204,6 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     struct inode parent_inode = {0};
     inode_read(u, (uint16_t)parent_inr, &parent_inode);
     struct filev6 parent = {u, (uint16_t)parent_inr, parent_inode,0};
-
     filev6_writebytes(u, &parent, &dir, sizeof(dir));
     return 0;
 }

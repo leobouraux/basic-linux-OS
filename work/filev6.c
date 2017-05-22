@@ -9,7 +9,6 @@
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6){
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(u);
-
     fv6->u = u;
     fv6->i_number = inr;
     fv6->offset = 0;
@@ -123,7 +122,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf,
 
 int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, int len){
     int offset = 0;
-    int read_size = 0;
+    int read_size = 1;
     while (offset < len && read_size > 0){
         read_size = filev6_writesector(u, fv6, buf, len, offset);
         offset += read_size;

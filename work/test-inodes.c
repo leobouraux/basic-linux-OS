@@ -2,6 +2,7 @@
 #include "inode.h"
 #include <string.h>
 #include "filev6.h"
+#include "direntv6.h"
 
 int test(struct unix_filesystem *u){
     inode_scan_print(u);
