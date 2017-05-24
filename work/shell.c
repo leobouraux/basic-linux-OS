@@ -201,8 +201,7 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
  */
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
-    printf("a ");
-    return direntv6_create(&u, args[1],IFDIR);
+    return direntv6_create(&u, args[1],IFDIR | IALLOC);
 }
 
 /**
@@ -211,8 +210,33 @@ int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_add(char args[ARG_NB][ARG_LENGTH]){
-    M_REQUIRE_NON_NULL(args);
-    return 0;
+    int err = direntv6_create(&u, args[2],IFMT | IALLOC);
+    if(err < 0){
+        return 0;
+    }
+    char content[7*256*512];
+    FILE* file = fopen(args[1], "rb");
+    fseek(file, 0, SEEK_END);
+    long fsize = ftell(file);
+    if(fsize < 0){
+        return ERR_IO;
+    }
+    fseek(file, 0, SEEK_SET);
+    size_t read_size = fread(content, (size_t)fsize, 1, file);
+    if(read_size == 0){ //TODO < fsize
+        return ERR_IO;
+    }
+    int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[2]);
+    if(inr < 0){
+        return inr;
+    }
+    struct filev6 fv6 = {0};
+    err = filev6_open(&u,(uint16_t)inr,&fv6);
+    if(err < 0){
+        return err;
+    }
+    err = filev6_writebytes(&u, &fv6,content, (int)fsize);
+    return err;
 }
 
 /**

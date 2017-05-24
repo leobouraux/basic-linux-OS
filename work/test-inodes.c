@@ -10,7 +10,7 @@ int test(struct unix_filesystem *u){
     memset(&i, 0, sizeof(i));
     inode_read(u, 3, &i);
     inode_print(&i);
-    int j = inode_findsector(u, &i, 1);
+    int j = inode_findsector(u, &i, 0);
     printf("%d\n", j);
     struct inode ind = {0};
     struct filev6 fv6 = {u, 6,ind,0};

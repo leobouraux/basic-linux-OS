@@ -71,7 +71,6 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     int err = sector_read(u->f, (uint32_t) (start + block_offset), inodes);
     //instanciate the inode from the array
     *inode = inodes[inr % INODES_PER_SECTOR];
-    printf("f_inode_read1 ");
     if (!(inode->i_mode & IALLOC)) {
         return ERR_UNALLOCATED_INODE;
     }
