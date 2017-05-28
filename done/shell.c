@@ -7,6 +7,8 @@
 #include "sha.h"
 #include "error.h"
 
+#define DEBUG 1
+
 struct unix_filesystem u;
 
 #define ARG_LENGTH 30
@@ -126,7 +128,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
         while (totalSize < maxSize && ((readsize = filev6_readblock(&fs, &content[totalSize])) > 0)){
             totalSize += (size_t)readsize;
         }
-        printf("%s", content);
+        printf("%s", content); //TODO 2 fois le contenu dans content
     }
     return 0;
 }
@@ -189,7 +191,7 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
     //convert string to long int
     long int nbBlocks = strtol(args[3], NULL, 10);
     long int nbInodes = strtol(args[2], NULL, 10);
-    return mountv6_mkfs(args[1], (uint16_t)nbBlocks, (uint16_t)nbInodes);;
+    return mountv6_mkfs(args[1], (uint16_t)nbBlocks, (uint16_t)nbInodes);
 }
 
 /**
@@ -199,7 +201,7 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
  */
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
-    return direntv6_create(&u, args[1],IFDIR);
+    return direntv6_create(&u, args[1],IFDIR | IALLOC);
 }
 
 /**
@@ -208,8 +210,33 @@ int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_add(char args[ARG_NB][ARG_LENGTH]){
-    M_REQUIRE_NON_NULL(args);
-    return 0;
+    int err = direntv6_create(&u, args[2], IALLOC);
+    if(err < 0){
+        return 0;
+    }
+    char content[7*256*512];
+    FILE* file = fopen(args[1], "rb");
+    fseek(file, 0, SEEK_END);
+    long fsize = ftell(file);
+    if(fsize < 0){
+        return ERR_IO;
+    }
+    fseek(file, 0, SEEK_SET);
+    size_t read_size = fread(content, (size_t)fsize, 1, file);
+    if(read_size == 0){ //TODO < fsize
+        return ERR_IO;
+    }
+    int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[2]);
+    if(inr < 0){
+        return inr;
+    }
+    struct filev6 fv6 = {0};
+    err = filev6_open(&u,(uint16_t)inr,&fv6);
+    if(err < 0){
+        return err;
+    }
+    err = filev6_writebytes(&u, &fv6,content, (int)fsize);
+    return err;
 }
 
 /**
@@ -279,8 +306,11 @@ int interprete(char args[ARG_NB][ARG_LENGTH], struct shell_map* current, size_t 
         return ERR_WRONG_NB_ARG;
     }
     //if FS not mounted
-    if(u.f == NULL && (strcmp(current->name,"help") != 0 && strcmp(current->name,"exit") != 0 &&
-            strcmp(current->name,"quit") != 0 && strcmp(current->name,"mount") != 0)){
+    if(u.f == NULL && strcmp(current->name,"help")!=0
+                       && strcmp(current->name,"exit")!=0
+                       && strcmp(current->name,"quit")!=0
+                       && strcmp(current->name,"mount")!=0
+                       && strcmp(current->name,"mkfs")!=0){ //TODO on peut mieux faire (c'est les 5 premieres f°)
         return ERR_FS_NOT_MOUNTED;
     }
     return 0;

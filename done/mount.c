@@ -135,27 +135,18 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
 
     //1.
     //comment representer un super block qui est un secteur different des secteurs avec inode
-    /*struct unix_filesystem *u;
-    u->s.s_isize = num_inodes / INODES_PER_SECTOR;
-    u->s.s_fsize = num_blocks;
-    if(u->s.s_fsize < u->s.s_isize)
+    struct superblock spb = {0};
+    spb.s_isize =  num_inodes % INODES_PER_SECTOR == 0 ? num_inodes / INODES_PER_SECTOR : num_inodes / INODES_PER_SECTOR + 1;
+    spb.s_fsize = num_blocks;
+    if(spb.s_fsize < spb.s_isize)
         return ERR_NOT_ENOUGH_BLOCS;
-    u->s.s_inode_start = SUPERBLOCK_SECTOR+1;
-    u->s.s_block_start = u->s.s_inode_start + u->s.s_isize;
-    */
-    uint16_t superblock[SECTOR_SIZE/sizeof(uint16_t)];
-    memset(superblock, SECTOR_SIZE/sizeof(uint16_t), sizeof(uint16_t));
-    superblock[0] = num_inodes / INODES_PER_SECTOR;
-    superblock[1] = num_blocks;
-    if(superblock[1] < superblock[0])
-        return ERR_NOT_ENOUGH_BLOCS;
-    superblock[4] = SUPERBLOCK_SECTOR+1;//bizarre ou sont les blocks de bitmap ?
-    superblock[5] = (uint16_t)(superblock[4] + superblock[0]);
+    spb.s_inode_start = SUPERBLOCK_SECTOR+1;  //les blocks de bitmaps ne sont pas stockés sur le disk mais calculé au démarage
+    spb.s_block_start = spb.s_inode_start + spb.s_isize;
 
-    //2.
-    FILE* f = fopen(filename, "w");
+    //create a binary file
+    FILE* f = fopen(filename, "wb");
 
-    //3.
+    //create abd write the bootblock sector
     uint8_t bootblock[SECTOR_SIZE];
     bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] = BOOTBLOCK_MAGIC_NUM;
     int err = sector_write(f, BOOTBLOCK_SECTOR, bootblock);
@@ -163,26 +154,27 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
         return err;
     }
 
-    //4.
-    err = sector_write(f, SUPERBLOCK_SECTOR, superblock);
+    //write the superblock
+    err = sector_write(f, SUPERBLOCK_SECTOR, &spb);
     if(err < 0){
         return err;
     }
 
-    //5+6
-    //set all inodes sectors to 0 between     s_inode_start+1  and  s_block_start-1
-    struct inode sectorOfInodes[SECTOR_SIZE/ sizeof(struct inode)] = {0};
-    for (uint32_t i = SUPERBLOCK_SECTOR+2; i < (uint32_t)(superblock[5]-1); ++i) {
+    //set and write all inodes sectors to 0 between     s_inode_start+1  and  s_block_start-1
+    struct inode sectorOfInodes[INODES_PER_SECTOR] = {0};
+    sectorOfInodes[1].i_mode = IFDIR | IALLOC;        //TODO  sectorOfInodes[0] ou 1 ?
+    sectorOfInodes[1].i_size0 = 0;
+    sectorOfInodes[1].i_size1 = 0;
+    sectorOfInodes[1].i_addr[0] =  (uint16_t) (spb.s_block_start + 1);
+
+    for (uint32_t i = spb.s_inode_start; i < (uint32_t)(spb.s_block_start-1); ++i) {
         err = sector_write(f, i, sectorOfInodes);
         if(err < 0){
             return err;
         }
     }
-    sectorOfInodes[0].i_mode = IFDIR;
-    err = sector_write(f, SUPERBLOCK_SECTOR+1, sectorOfInodes);
-    if(err < 0){
-        return err;
-    }
+
+    fclose(f);
 
     return 0;
 }

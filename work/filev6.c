@@ -27,9 +27,11 @@ int filev6_readblock(struct filev6 *fv6, void *buf){
     if(sector < 0){
         return sector;
     }
-    int j = sector_read(fv6->u->f, (uint32_t)sector, buf);
-    if(j == ERR_IO || j == ERR_BAD_PARAMETER){
-        return j;
+    if(remaining){
+        int j = sector_read(fv6->u->f, (uint32_t)sector, buf);
+        if(j == ERR_IO || j == ERR_BAD_PARAMETER){
+            return j;
+        }
     }
 
     //return read size
@@ -91,7 +93,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf,
         if(err < 0){
             return err;
         }
-        int32_t addr_index = inode_size/SECTOR_SIZE + 1;
+        int32_t addr_index = inode_size/SECTOR_SIZE;
         fv6->i_node.i_addr[addr_index] = (uint16_t)sector;
     }else{
         uint32_t left_in_sector = (uint32_t)(SECTOR_SIZE - (inode_size % SECTOR_SIZE));

@@ -49,6 +49,7 @@ void inode_print(const struct inode *inode) {
         printf("i_size0: %" PRIu8"\n", inode->i_size0);
         printf("i_size1: %" PRIu16"\n", inode->i_size1);
         printf("size: %" PRIu16"\n", inode_getsize(inode));
+
     }
     printf("**********FS INODE END**********\n");
 }
@@ -63,13 +64,11 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     if (inr > size) {
         return ERR_INODE_OUTOF_RANGE;
     }
-
     //read the corresponding sector to inr
     uint16_t start = u->s.s_inode_start;
     uint16_t block_offset = inr / INODES_PER_SECTOR;
     struct inode inodes[SECTOR_SIZE];
     int err = sector_read(u->f, (uint32_t) (start + block_offset), inodes);
-
     //instanciate the inode from the array
     *inode = inodes[inr % INODES_PER_SECTOR];
     if (!(inode->i_mode & IALLOC)) {
@@ -131,4 +130,13 @@ int inode_alloc(struct unix_filesystem *u){
     }
     bm_set(u->ibm, (uint64_t)inr);
     return inr;
+}
+
+int inode_setsize(struct inode *inode, int new_size) {
+    if (new_size < 0) {
+        return ERR_NOMEM;
+    }
+    inode->i_size0 = (uint8_t)(new_size >> 16);
+    inode->i_size1 = (uint16_t)(new_size & 0xFFFF);
+    return 0;
 }
