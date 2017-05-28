@@ -128,7 +128,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
         while (totalSize < maxSize && ((readsize = filev6_readblock(&fs, &content[totalSize])) > 0)){
             totalSize += (size_t)readsize;
         }
-        printf("%s", content);
+        printf("%s", content); //TODO 2 fois le contenu dans content
     }
     return 0;
 }
@@ -210,7 +210,7 @@ int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
  * @return
  */
 int do_add(char args[ARG_NB][ARG_LENGTH]){
-    int err = direntv6_create(&u, args[2],IFMT | IALLOC);
+    int err = direntv6_create(&u, args[2], IALLOC);
     if(err < 0){
         return 0;
     }
