@@ -118,7 +118,7 @@ gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -
 gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code    -o fs fs.o mount.o sector.o inode.o filev6.o direntv6.o error.o bmblock.o -lm -lcrypto $(pkg-config fuse --libs)
 shell done.
 testing your shell: 
-failed. (shall not)
+done.
 diff from reference:
 1,3c1,5
 < >ERROR SHELL: mount the FS before the operation
@@ -189,8 +189,7 @@ diff from reference:
 > 	- psb: Print SuperBlock of the currently mounted filesystem.
 > >>> SHA inode 3: 338fc4bb0d037f3747396a4c852d2a9d8b545d622c6c744c670cf95f715731d3
 > >>> >>> DIR /
-77,80c80,82
-< DIR /tmp/
+77,79c80,82
 < >SHA inode 21: 7ee39739006a4a5f1b2a082d1f825837ee4403c85acc8a6257cd0e797bef9d77
 < >inode: 17
 < >**********FS INODE START**********
@@ -198,27 +197,16 @@ diff from reference:
 > >>> SHA inode 21: 7ee39739006a4a5f1b2a082d1f825837ee4403c85acc8a6257cd0e797bef9d77
 > >>> inode: 17
 > >>> **********FS INODE START**********
-89,98c91,92
-< >**********FS INODE START**********
-< i_mode: 49152
-< i_nlink: 0
-< i_uid: 0
-< i_gid: 0
-< i_size0: 0
-< i_size1: 0
-< size: 0
-< **********FS INODE END**********
+88,89c91,92
+< >ERROR FS: unallocated inode
 < >CHAPTER VIII. The Queen’s Croquet-Ground
 ---
 > >>> ERROR FS: unallocated inode
 > >>> CHAPTER VIII. The Queen’s Croquet-Ground
-390c384,443
-< ‘She’s in prison,’ the Queen said to the executioner: 
+384c387,443
+<  The Cat’s head began fading away the moment he was gone
 \ No newline at end of file
 ---
-> ‘She’s in prison,’ the Queen said to the executioner: ‘fetch her here.’
-> And the executioner went off like an arrow.
-> 
 >  The Cat’s head began fading away the moment he was gone, and,
 > by the time he had come back with the Duchess, it had entirely
 > disappeared; so the King and the executioner ran wildly up and down
@@ -306,4 +294,4 @@ filev6.c:118:39: warning: conversion to ‘int’ from ‘uint32_t {aka unsigned
 filev6.c:122:12: warning: conversion to ‘int’ from ‘uint32_t {aka unsigned int}’ may change the sign of the result [-Wsign-conversion]
      return nb_bytes;
             ^
-/home/whitlock/pps/Dev2017/grading/students_feedback/week12/submit.sh: line 153: 257278 Segmentation fault      timeout -s TERM -k 15s 10s "$exec" < "$cmdfile" > "$output" 2>&1
+/home/whitlock/pps/Dev2017/grading/students_feedback/week12/submit.sh: line 163: 10146 Segmentation fault      timeout -s TERM -k 15s 10s "$exec" < "$cmdfile" > "$output" 2>&1
