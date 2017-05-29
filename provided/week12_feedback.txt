@@ -1,0 +1,309 @@
+Submission accepted
+
+stdout:
+making (our) test-inodes: 
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-inodes.o test-inodes.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-core.o test-core.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o error.o error.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o mount.o mount.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o sector.o sector.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o inode.o inode.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o filev6.o filev6.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o bmblock.o bmblock.c
+gcc   test-inodes.o test-core.o error.o mount.o sector.o inode.o filev6.o bmblock.o  -lm -lcrypto -o test-inodes
+test-inodes done.
+making (our) test-file: 
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-file.o test-file.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o sha.o sha.c
+gcc   test-file.o test-core.o error.o mount.o sector.o inode.o filev6.o sha.o bmblock.o  -lm -lcrypto -o test-file
+test-file done.
+making (our) test-dirent: 
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-dirent.o test-dirent.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o direntv6.o direntv6.c
+gcc   test-dirent.o test-core.o error.o mount.o sector.o inode.o sha.o filev6.o direntv6.o bmblock.o  -lm -lcrypto -o test-dirent
+test-dirent done.
+making (our) test-bitmap: 
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o test-bitmap.o test-bitmap.c
+gcc   test-bitmap.o bmblock.o  -lm -lcrypto -o test-bitmap
+test-bitmap done.
+=====
+testing our test-inodes on disk simple.uv6: done.
+diff from reference:
+4,5c4,5
+< s_fbmsize     : 16
+< s_ibmsize     : 8
+---
+> s_fbmsize           : 0
+> s_ibmsize           : 0
+15c15
+< **********FS SUPERBLOCK END************
+---
+> **********FS SUPERBLOCK END**********
+=====
+testing our test-inodes on disk aiw.uv6: done.
+diff from reference:
+4,5c4,5
+< s_fbmsize     : 63
+< s_ibmsize     : 16
+---
+> s_fbmsize           : 0
+> s_ibmsize           : 0
+15c15
+< **********FS SUPERBLOCK END************
+---
+> **********FS SUPERBLOCK END**********
+=====
+testing our test-file on disk simple.uv6: done.
+diff from reference:
+4,5c4,5
+< s_fbmsize     : 16
+< s_ibmsize     : 8
+---
+> s_fbmsize           : 0
+> s_ibmsize           : 0
+15c15
+< **********FS SUPERBLOCK END************
+---
+> **********FS SUPERBLOCK END**********
+=====
+testing our test-file on disk aiw.uv6: done.
+diff from reference:
+4,5c4,5
+< s_fbmsize     : 63
+< s_ibmsize     : 16
+---
+> s_fbmsize           : 0
+> s_ibmsize           : 0
+15c15
+< **********FS SUPERBLOCK END************
+---
+> **********FS SUPERBLOCK END**********
+=====
+testing our test-dirent on disk simple.uv6: done.
+diff from reference:
+4,5c4,5
+< s_fbmsize     : 16
+< s_ibmsize     : 8
+---
+> s_fbmsize           : 0
+> s_ibmsize           : 0
+15c15
+< **********FS SUPERBLOCK END************
+---
+> **********FS SUPERBLOCK END**********
+=====
+testing our test-dirent on disk aiw.uv6: done.
+diff from reference:
+4,5c4,5
+< s_fbmsize     : 63
+< s_ibmsize     : 16
+---
+> s_fbmsize           : 0
+> s_ibmsize           : 0
+15c15
+< **********FS SUPERBLOCK END************
+---
+> **********FS SUPERBLOCK END**********
+=====
+testing our test-bitmap on disk simple.uv6: done.
+diff from reference:
+=====
+testing our test-bitmap on disk aiw.uv6: done.
+diff from reference:
+=====
+making (your) shell: 
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -o shell.o shell.c
+gcc   shell.o filev6.o direntv6.o error.o sector.o inode.o sha.o mount.o bmblock.o  -lm -lcrypto -o shell
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code   -c -D_DEFAULT_SOURCE $(pkg-config fuse --cflags) -o fs.o -c fs.c
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code    -o fs fs.o mount.o sector.o inode.o filev6.o direntv6.o error.o bmblock.o -lm -lcrypto $(pkg-config fuse --libs)
+shell done.
+testing your shell: 
+failed. (shall not)
+diff from reference:
+1,3c1,5
+< >ERROR SHELL: mount the FS before the operation
+< >ERROR FS: IO error
+< >>DIR /
+---
+> Shell interpretor
+> Type "help" for more information.
+> >>> ERROR SHELL: mount the FS before the operation
+> >>> ERROR FS: IO error: No such file or directory
+> >>> >>> DIR /
+6,7c8,10
+< >Coucou le monde !
+< >**********FS INODE START**********
+---
+> >>> Coucou le monde !
+> 
+> >>> **********FS INODE START**********
+16c19
+< >**********FS INODE START**********
+---
+> >>> **********FS INODE START**********
+25,27c28,30
+< >inode: 2
+< >inode: 3
+< >**********FS SUPERBLOCK START**********
+---
+> >>> inode: 2
+> >>> inode: 3
+> >>> **********FS SUPERBLOCK START**********
+30,31c33,34
+< s_fbmsize     : 16
+< s_ibmsize     : 8
+---
+> s_fbmsize           : 0
+> s_ibmsize           : 0
+41,56c44,59
+< **********FS SUPERBLOCK END************
+< >- help: display this help
+< - exit: exit shell
+< - quit: exit shell
+< - mkfs: <diskname> <#inodes> <#blocks>: create a new filesystem
+< - mount: <diskname>: mount the provided filesystem
+< - mkdir: <dirname>: create a new directory
+< - lsall: list all directories and files contained in the currently mounted filesystem
+< - add: <src-fullpath> <dst>: add new file
+< - cat: <pathname>: display the content of a file
+< - istat: <inode_nr>: display information about the provided inode
+< - inode: <pathname>: display the inode number of a file
+< - sha: <pathname>: display the Sha file
+< - psb: print SuperBlock of the currently mounted filesystem
+< >SHA inode 3: 782eb78274f2a249d61323efc079a1468629187a1c489b2a93632bbf35bc464e
+< >>DIR /
+---
+> **********FS SUPERBLOCK END**********
+> >>> 	- help: display this help.
+> 	- exit: exit shell.
+> 	- quit: exit shell.
+> 	- mkfs <diskname> <#inodes> <#blocks>: create a new filesystem.
+> 	- mount <diskname>: mount the provided filesystem.
+> 	- mkdir <dirname>: create a new directory.
+> 	- lsall: list all directories and files contained in the currently mounted filesystem.
+> 	- add <src-fullpath> <dst>: add a new file.
+> 	- cat <pathname>: display the content of a file.
+> 	- istat <inode_nr>: display information about the provided inode.
+> 	- inode <pathname>: display the inode number of a file.
+> 	- sha <pathname>: display the SHA of a file.
+> 	- psb: Print SuperBlock of the currently mounted filesystem.
+> >>> SHA inode 3: 338fc4bb0d037f3747396a4c852d2a9d8b545d622c6c744c670cf95f715731d3
+> >>> >>> DIR /
+77,80c80,82
+< DIR /tmp/
+< >SHA inode 21: 7ee39739006a4a5f1b2a082d1f825837ee4403c85acc8a6257cd0e797bef9d77
+< >inode: 17
+< >**********FS INODE START**********
+---
+> >>> SHA inode 21: 7ee39739006a4a5f1b2a082d1f825837ee4403c85acc8a6257cd0e797bef9d77
+> >>> inode: 17
+> >>> **********FS INODE START**********
+89,98c91,92
+< >**********FS INODE START**********
+< i_mode: 49152
+< i_nlink: 0
+< i_uid: 0
+< i_gid: 0
+< i_size0: 0
+< i_size1: 0
+< size: 0
+< **********FS INODE END**********
+< >CHAPTER VIII. The Queen’s Croquet-Ground
+---
+> >>> ERROR FS: unallocated inode
+> >>> CHAPTER VIII. The Queen’s Croquet-Ground
+390c384,443
+< ‘She’s in prison,’ the Queen said to the executioner: 
+\ No newline at end of file
+---
+> ‘She’s in prison,’ the Queen said to the executioner: ‘fetch her here.’
+> And the executioner went off like an arrow.
+> 
+>  The Cat’s head began fading away the moment he was gone, and,
+> by the time he had come back with the Duchess, it had entirely
+> disappeared; so the King and the executioner ran wildly up and down
+> looking for it, while the rest of the party went back to the game.
+> 
+> >>> >>> >>> DIR /
+> >>> >>> DIR /
+> DIR /tmp/
+> >>> >>> DIR /
+> DIR /tmp/
+> FIL /tmp/abcd.txt
+> >>> inode: 1
+> >>> inode: 2
+> >>> inode: 3
+> >>> **********FS INODE START**********
+> i_mode: 32768
+> i_nlink: 0
+> i_uid: 0
+> i_gid: 0
+> i_size0: 0
+> i_size1: 616
+> size: 616 
+> **********FS INODE END**********
+> >>> lsall
+> mount bidon142857.
+> mount /home/whitlock/pps/Dev2017/mainprj/disks/simple.uv6
+> lsall
+> cat /tmp/coucou.txt
+> istat 2
+> istat 3
+> inode /tmp
+> inode /tmp/coucou.txt
+> psb
+> help
+> sha /tmp/coucou.txt
+> mount /home/whitlock/pps/Dev2017/mainprj/disks/aiw.uv6
+> lsall
+> sha /books/aiw/full/11-0.txt
+> inode /books/aiw/by_chapters/11-0-c11.txt
+> istat 19
+> istat 22
+> cat /books/aiw/by_chapters/11-0-c08.txt
+> mkfs bidon 128 1024
+> mount bidon
+> lsall
+> mkdir /tmp
+> lsall
+> add shell_cmd.txt /tmp/abcd.txt
+> lsall
+> inode /
+> inode /tmp
+> inode /tmp/abcd.txt
+> istat 3
+> cat /tmp/abcd.txt
+> quit
+> 
+> >>> 
+
+=====
+testing mkfs: ERROR: Disk "bidon" does not have the right size (7680 bytes)
+=====
+making (your) fs: 
+gcc -Wall -pedantic -g -std=c99 -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code    -o fs fs.o mount.o sector.o inode.o filev6.o direntv6.o error.o bmblock.o -lm -lcrypto $(pkg-config fuse --libs)
+fs done.
+
+-----
+stderr:
+mount.c: In function ‘mountv6_mkfs’:
+mount.c:139:20: warning: conversion to ‘uint16_t {aka short unsigned int}’ from ‘long unsigned int’ may alter its value [-Wconversion]
+     spb.s_isize =  num_inodes % INODES_PER_SECTOR == 0 ? num_inodes / INODES_PER_SECTOR : num_inodes / INODES_PER_SECTOR + 1;
+                    ^
+mount.c:144:25: warning: conversion to ‘uint16_t {aka short unsigned int}’ from ‘int’ may alter its value [-Wconversion]
+     spb.s_block_start = spb.s_inode_start + spb.s_isize;
+                         ^
+filev6.c: In function ‘filev6_writesector’:
+filev6.c:92:56: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+         err = sector_write(u->f, (uint32_t)sector, buf + offset);
+                                                        ^
+filev6.c:118:50: warning: conversion to ‘uint32_t {aka unsigned int}’ from ‘int32_t {aka int}’ may change the sign of the result [-Wsign-conversion]
+     err = inode_setsize(&fv6->i_node, inode_size + nb_bytes);
+                                                  ^
+filev6.c:118:39: warning: conversion to ‘int’ from ‘uint32_t {aka unsigned int}’ may change the sign of the result [-Wsign-conversion]
+     err = inode_setsize(&fv6->i_node, inode_size + nb_bytes);
+                                       ^
+filev6.c:122:12: warning: conversion to ‘int’ from ‘uint32_t {aka unsigned int}’ may change the sign of the result [-Wsign-conversion]
+     return nb_bytes;
+            ^
+/home/whitlock/pps/Dev2017/grading/students_feedback/week12/submit.sh: line 153: 257278 Segmentation fault      timeout -s TERM -k 15s 10s "$exec" < "$cmdfile" > "$output" 2>&1
