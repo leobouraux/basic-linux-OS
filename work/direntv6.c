@@ -109,7 +109,8 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
     char name[MAXPATHLEN_UV6];
     uint16_t child_inr = 0;
     //while there is still a file to read, it compares name to the current entry
-    while (direntv6_readdir(&d, name, &child_inr) > 0) {
+    int err = 0;
+    while ((err = direntv6_readdir(&d, name, &child_inr)) > 0) {
         int comp = strncmp(name, entry + offset, strlen(name));
         if(comp == 0 && len == strlen(name)){
             //when it's a file
@@ -119,6 +120,9 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
                 return direntv6_dirlookup(u, child_inr, entry+offset+len);
             }
         }
+    }
+    if(err < 0){
+        return err;
     }
     return ERR_INODE_OUTOF_RANGE;
 }

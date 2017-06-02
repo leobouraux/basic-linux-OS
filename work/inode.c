@@ -23,7 +23,7 @@ int inode_scan_print(const struct unix_filesystem *u) {
         for (unsigned int i = 0; i < INODES_PER_SECTOR; ++i) {
             struct inode inod = inodes[i];
             if (inod.i_mode & IALLOC) {
-                printf("inode %3d ", ++i_count);
+                printf("inode %3d ", ++i_count); //TODO print real number of inode
                 if (inod.i_mode & IFDIR) {
                     printf("(" SHORT_DIR_NAME ")");
                 } else {
@@ -61,7 +61,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 
     //return if inr bigger than total inr
     long unsigned int size = u->s.s_isize * INODES_PER_SECTOR;
-    if (inr > size) {
+    if (inr < ROOT_INUMBER || inr > size) {
         return ERR_INODE_OUTOF_RANGE;
     }
     //read the corresponding sector to inr

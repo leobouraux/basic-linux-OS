@@ -49,7 +49,7 @@ struct shell_map {
  */
 int do_exit(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
-    return 0;
+    return umountv6(&u);
 }
 
 /**
@@ -59,7 +59,7 @@ int do_exit(char args[ARG_NB][ARG_LENGTH]){
  */
 int do_quit(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
-    return 0;
+    return umountv6(&u);
 }
 
 /**
@@ -76,6 +76,10 @@ int do_help(char args[ARG_NB][ARG_LENGTH]);
  */
 int do_mount(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
+    int err = umountv6(&u);
+    if(err < 0){
+        return err;
+    }
     return mountv6(args[1], &u);
 }
 
@@ -120,7 +124,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
     if (fs.i_node.i_mode & IFDIR) {
         return ERR_CAT_ON_DIR;
     } else {
-        size_t maxSize = SECTOR_SIZE * (ADDR_SMALL_LENGTH - 1) * ADDRESSES_PER_SECTOR + 1;
+        int32_t maxSize = inode_getsectorsize(&fs.i_node);
         char content[maxSize];
         memset(content, 0, maxSize * sizeof(char));
         size_t totalSize = 0;
@@ -128,7 +132,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
         while (totalSize < maxSize && ((readsize = filev6_readblock(&fs, &content[totalSize])) > 0)){
             totalSize += (size_t)readsize;
         }
-        printf("%s", content); //TODO 2 fois le contenu dans content
+        printf("%s", content); //TODO \0 securite et err readblock
     }
     return 0;
 }
@@ -141,9 +145,15 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
 int do_sha(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
+    if(inr < 0){
+        return inr;
+    }
     struct inode inode;
     memset(&inode, 0, sizeof(inode));
-    inode_read(&u, (uint16_t)inr, &inode);
+    int err = inode_read(&u, (uint16_t)inr, &inode);
+    if(err < 0){
+        return err;
+    }
     print_sha_inode(&u, inode, inr);
     return 0;
 }
@@ -156,6 +166,9 @@ int do_sha(char args[ARG_NB][ARG_LENGTH]){
 int do_inode(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
     int inr = direntv6_dirlookup(&u, ROOT_INUMBER, args[1]);
+    if(inr < 0){
+        return inr;
+    }
     printf("inode: %d\n", inr);
     return 0;
 }
