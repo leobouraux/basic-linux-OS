@@ -1,8 +1,6 @@
-*
 !/**/
 !*.c
 !*.h
 !*.txt
 !makefile
-.gitignore
 cmake-build-debug/
