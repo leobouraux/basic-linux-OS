@@ -84,7 +84,7 @@ int filev6_convert_to_big(struct unix_filesystem *u, struct filev6 *fv6){
     }
     fv6->i_node.i_addr[0] = (uint16_t)indirec_sector;
     for (int i = 1; i < ADDR_SMALL_LENGTH; ++i) {
-        adress[i] = 0;
+        fv6->i_node.i_addr[i] = 0;
     }
     return 0;
 }
@@ -99,7 +99,10 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf,
     int err = 0;
     if(inode_size % SECTOR_SIZE == 0){
         if(inode_size == ADDR_SMALL_LENGTH * SECTOR_SIZE){
-            filev6_convert_to_big(u,fv6);
+            err = filev6_convert_to_big(u,fv6);
+            if(err < 0){
+                return err;
+            }
         }
         if(rest_to_write < SECTOR_SIZE){
             nb_bytes = rest_to_write;
