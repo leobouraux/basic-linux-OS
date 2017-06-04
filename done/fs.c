@@ -70,7 +70,10 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
         char name[MAXPATHLEN_UV6];
         uint16_t child_inr;
         while (direntv6_readdir(&d, name, &child_inr) > 0) {
-            filler(buf, name, NULL, 0);
+            int err = filler(buf, name, NULL, 0);
+            if(err != 0){
+                return 0;   //TODO https://www.cs.hmc.edu/~geoff/classes/hmc.cs135.201001/homework/fuse/fuse_doc.html
+            }
         }
     }
     return 0;
@@ -82,7 +85,7 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
     (void) fi;
     int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
     if(inr < 0){
-        return inr;
+        return 0;
     }
     struct filev6 filv6;
     int err = filev6_open(&fs, (uint16_t)inr, &filv6);

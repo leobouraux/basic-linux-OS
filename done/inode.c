@@ -9,7 +9,6 @@ int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
 
     uint16_t start = u->s.s_inode_start;
-    int i_count = 0;
     uint16_t size = u->s.s_isize;
 
     //read all the inode sectors
@@ -23,13 +22,13 @@ int inode_scan_print(const struct unix_filesystem *u) {
         for (unsigned int i = 0; i < INODES_PER_SECTOR; ++i) {
             struct inode inod = inodes[i];
             if (inod.i_mode & IALLOC) {
-                printf("inode %3d ", ++i_count);
+                printf("inode %3lu ", inc*INODES_PER_SECTOR+i);
                 if (inod.i_mode & IFDIR) {
                     printf("(" SHORT_DIR_NAME ")");
                 } else {
                     printf("(" SHORT_FIL_NAME ")");
                 }
-                printf(" len %4d\n", inode_getsize(&inod));
+                printf(" len %5d\n", inode_getsize(&inod));
             }
         }
     }
@@ -48,7 +47,7 @@ void inode_print(const struct inode *inode) {
         printf("i_gid: %" PRIu8"\n", inode->i_gid);
         printf("i_size0: %" PRIu8"\n", inode->i_size0);
         printf("i_size1: %" PRIu16"\n", inode->i_size1);
-        printf("size: %" PRIu16"\n", inode_getsize(inode));
+        printf("size: %" PRIu16" \n", inode_getsize(inode));
 
     }
     printf("**********FS INODE END**********\n");
@@ -61,7 +60,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 
     //return if inr bigger than total inr
     long unsigned int size = u->s.s_isize * INODES_PER_SECTOR;
-    if (inr > size) {
+    if (inr < ROOT_INUMBER || inr > size) {
         return ERR_INODE_OUTOF_RANGE;
     }
     //read the corresponding sector to inr

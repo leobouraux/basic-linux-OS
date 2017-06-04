@@ -63,13 +63,19 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
         char name[MAXPATHLEN_UV6];
         uint16_t child_inr;
 
+
         //while there is still a file to read
-        while (direntv6_readdir(&d, name, &child_inr) > 0) {
+        int err = 0;
+        while ((err = direntv6_readdir(&d, name, &child_inr)) > 0) {
             char concat[MAXPATHLEN_UV6];
             //store prefix and name followed by / in concat
             snprintf(concat, MAXPATHLEN_UV6, "%s%s%c", prefix, name, PATH_TOKEN);
-            direntv6_print_tree(u, child_inr, concat);
+            err = direntv6_print_tree(u, child_inr, concat);
+            if(err<0)
+                return err;
         }
+        if(err<0)
+            return err;
     }
     return 0;
 }
@@ -109,7 +115,8 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
     char name[MAXPATHLEN_UV6];
     uint16_t child_inr = 0;
     //while there is still a file to read, it compares name to the current entry
-    while (direntv6_readdir(&d, name, &child_inr) > 0) {
+    int err = 0;
+    while ((err = direntv6_readdir(&d, name, &child_inr)) > 0) {
         int comp = strncmp(name, entry + offset, strlen(name));
         if(comp == 0 && len == strlen(name)){
             //when it's a file
@@ -119,6 +126,9 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
                 return direntv6_dirlookup(u, child_inr, entry+offset+len);
             }
         }
+    }
+    if(err < 0){
+        return err;
     }
     return ERR_INODE_OUTOF_RANGE;
 }
@@ -138,13 +148,13 @@ int direntv6_test_available(struct unix_filesystem *u, const char *entry, char *
     M_REQUIRE_NON_NULL(parent_inr);
 
 
-    char parent[30] = {0};
+    char parent[30] = {0};              //TODO magic numbers?
     char *limit = strrchr(entry, '/'); //TODO handle / at the end
     if(limit == NULL){
         return ERR_BAD_PARAMETER;
     }
 
-    strncpy(relative_name, limit+1, 14);
+    strncpy(relative_name, limit+1, 14);  //TODO magic numbers?
     strncpy(parent, entry, strlen(entry)-strlen(relative_name));
 
 
