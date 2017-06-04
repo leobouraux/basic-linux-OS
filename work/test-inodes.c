@@ -5,7 +5,8 @@
 #include "direntv6.h"
 
 int test(struct unix_filesystem *u){
-    inode_scan_print(u);
+    return inode_scan_print(u);
+    /*
     struct inode i;
     memset(&i, 0, sizeof(i));
     inode_read(u, 3, &i);
@@ -21,6 +22,6 @@ int test(struct unix_filesystem *u){
     inode_scan_print(u);
     inode_read(u, 1, &i);
     inode_print(&i);
-
     return 0;
+     */
 }

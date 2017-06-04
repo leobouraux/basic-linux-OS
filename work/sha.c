@@ -6,9 +6,6 @@
 #include <string.h>
 
 
-#define MAX_LENGTH_OF_FILE (SECTOR_SIZE * (ADDR_SMALL_LENGTH-1) * ADDRESSES_PER_SECTOR)
-
-
 void print_sha_from_content(const unsigned char *content, size_t length){
 	unsigned char sha[SHA256_DIGEST_LENGTH];
 	SHA256(content, length, sha);

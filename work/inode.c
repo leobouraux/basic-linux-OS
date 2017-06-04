@@ -9,7 +9,6 @@ int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
 
     uint16_t start = u->s.s_inode_start;
-    int i_count = 0;
     uint16_t size = u->s.s_isize;
 
     //read all the inode sectors
@@ -23,13 +22,13 @@ int inode_scan_print(const struct unix_filesystem *u) {
         for (unsigned int i = 0; i < INODES_PER_SECTOR; ++i) {
             struct inode inod = inodes[i];
             if (inod.i_mode & IALLOC) {
-                printf("inode %3d ", ++i_count); //TODO print real number of inode
+                printf("inode %3lu ", inc*INODES_PER_SECTOR+i);
                 if (inod.i_mode & IFDIR) {
                     printf("(" SHORT_DIR_NAME ")");
                 } else {
                     printf("(" SHORT_FIL_NAME ")");
                 }
-                printf(" len %4d\n", inode_getsize(&inod));
+                printf(" len %5d\n", inode_getsize(&inod));
             }
         }
     }

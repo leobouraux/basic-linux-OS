@@ -126,7 +126,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
     if (fs.i_node.i_mode & IFDIR) {
         return ERR_CAT_ON_DIR;
     } else {
-        int32_t maxSize = inode_getsectorsize(&fs.i_node);
+        int32_t maxSize = inode_getsectorsize(&fs.i_node)+1;
         char content[maxSize];
         memset(content, 0, maxSize * sizeof(char));
         size_t totalSize = 0;
@@ -134,7 +134,10 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
         while (totalSize < maxSize && ((readsize = filev6_readblock(&fs, &content[totalSize])) > 0)){
             totalSize += (size_t)readsize;
         }
-        printf("%s", content); //TODO \0 securite et err readblock
+        content[maxSize] = '\0';
+        if(readsize<0)
+            return readsize;
+        printf("%s", content); //TODO \0 securite et err readblock ??
     }
     return 0;
 }
