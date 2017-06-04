@@ -133,7 +133,6 @@ void mountv6_print_superblock(const struct unix_filesystem *u){
 int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes) {//struct unix_filesystem *u en param ?
     M_REQUIRE_NON_NULL(filename);
 
-    //1.
     //comment representer un super block qui est un secteur different des secteurs avec inode
     struct superblock spb = {0};
     spb.s_isize =  num_inodes % INODES_PER_SECTOR == 0 ? num_inodes / INODES_PER_SECTOR : num_inodes / INODES_PER_SECTOR + 1;
@@ -144,37 +143,41 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     spb.s_block_start = spb.s_inode_start + spb.s_isize;
 
     //create a binary file
-    FILE* f = fopen(filename, "wb");
-
-    //create abd write the bootblock sector
-    uint8_t bootblock[SECTOR_SIZE];
-    bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] = BOOTBLOCK_MAGIC_NUM;
-    int err = sector_write(f, BOOTBLOCK_SECTOR, bootblock);
-    if(err < 0){
-        return err;
+    FILE* f = NULL;
+    f = fopen(filename, "wb");
+    if (f == NULL) {
+        return ERR_IO;
     }
-
-    //write the superblock
-    err = sector_write(f, SUPERBLOCK_SECTOR, &spb);
-    if(err < 0){
-        return err;
-    }
-
-    //set and write all inodes sectors to 0 between     s_inode_start+1  and  s_block_start-1
-    struct inode sectorOfInodes[INODES_PER_SECTOR] = {0};
-    sectorOfInodes[1].i_mode = IFDIR | IALLOC;        //TODO  sectorOfInodes[0] ou 1 ?
-    sectorOfInodes[1].i_size0 = 0;
-    sectorOfInodes[1].i_size1 = 0;
-    sectorOfInodes[1].i_addr[0] =  (uint16_t) (spb.s_block_start + 1);
-
-    for (uint32_t i = spb.s_inode_start; i < (uint32_t)(spb.s_block_start-1); ++i) {
-        err = sector_write(f, i, sectorOfInodes);
-        if(err < 0){
+    else {
+        //create abd write the bootblock sector
+        uint8_t bootblock[SECTOR_SIZE];
+        bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] = BOOTBLOCK_MAGIC_NUM;
+        int err = sector_write(f, BOOTBLOCK_SECTOR, bootblock);
+        if (err < 0) {
             return err;
         }
+
+        //write the superblock
+        err = sector_write(f, SUPERBLOCK_SECTOR, &spb);
+        if (err < 0) {
+            return err;
+        }
+
+        //set and write all inodes sectors to 0 between     s_inode_start+1  and  s_block_start-1
+        struct inode sectorOfInodes[INODES_PER_SECTOR] = {0};
+        sectorOfInodes[1].i_mode = IFDIR | IALLOC;
+        sectorOfInodes[1].i_size0 = 0;
+        sectorOfInodes[1].i_size1 = 0;
+        sectorOfInodes[1].i_addr[0] = (uint16_t) (spb.s_block_start + 1);
+
+        for (uint32_t i = spb.s_inode_start; i < (uint32_t) (spb.s_block_start - 1); ++i) {
+            err = sector_write(f, i, sectorOfInodes);
+            if (err < 0) {
+                return err;
+            }
+        }
+
+        fclose(f);
     }
-
-    fclose(f);
-
     return 0;
 }

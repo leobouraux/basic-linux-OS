@@ -70,9 +70,9 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
         char name[MAXPATHLEN_UV6];
         uint16_t child_inr;
         while (direntv6_readdir(&d, name, &child_inr) > 0) {
-            fuse_fill_dir_t err = filler(buf, name, NULL, 0);
-            if(err < 0){
-                return err; //TODO check type?
+            int err = filler(buf, name, NULL, 0);
+            if(err != 0){
+                return 0;   //TODO https://www.cs.hmc.edu/~geoff/classes/hmc.cs135.201001/homework/fuse/fuse_doc.html
             }
         }
     }
