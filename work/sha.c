@@ -24,7 +24,7 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inod, int inr) {
     if (inod.i_mode & IALLOC) {
         printf("SHA inode %d: ", inr);
         if (inod.i_mode & IFDIR) {
-            printf("no SHA for directories. \n");
+            printf("no SHA for directories.\n");
         } else {
 
             //when the inode represent a file
