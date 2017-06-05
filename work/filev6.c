@@ -74,6 +74,7 @@ int filev6_convert_to_big(struct unix_filesystem *u, struct filev6 *fv6){
     if(indirec_sector < 0){
         return indirec_sector;
     }
+    bm_set(u->fbm, (uint64_t)indirec_sector);
     uint16_t adress[ADDRESSES_PER_SECTOR] = {0};
     for (int i = 0; i < ADDR_SMALL_LENGTH; ++i) {
         adress[i] = fv6->i_node.i_addr[i];
@@ -121,12 +122,13 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf,
         }
         //index it in inode
         if(inode_size >= ADDR_SMALL_LENGTH * SECTOR_SIZE){
-            if(inode_size % (ADDR_SMALL_LENGTH * SECTOR_SIZE) == 0){
+            if(inode_size % (ADDRESSES_PER_SECTOR * SECTOR_SIZE) == 0){
                 //big file and new indirection
                 int indirec_sector = bm_find_next(u->fbm);
                 if(indirec_sector < 0){
                     return indirec_sector;
                 }
+                bm_set(u->fbm, (uint64_t)sector);
                 uint16_t adress[ADDRESSES_PER_SECTOR] = {0};
                 adress[0] = (uint16_t)sector;
                 err = sector_write(u->f, (uint32_t)indirec_sector, adress);

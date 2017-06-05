@@ -196,8 +196,10 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     strncpy(dir.d_name, relative_name, 14);
 
     struct inode parent_inode = {0};
-    inode_read(u, (uint16_t)parent_inr, &parent_inode);
+    err = inode_read(u, (uint16_t)parent_inr, &parent_inode);
+    if(err < 0){
+        return err;
+    }
     struct filev6 parent = {u, (uint16_t)parent_inr, parent_inode,0};
-    filev6_writebytes(u, &parent, &dir, sizeof(dir));
-    return 0;
+    return filev6_writebytes(u, &parent, &dir, sizeof(dir));
 }
