@@ -59,12 +59,15 @@ int filev6_lseek(struct filev6 *fv6, int32_t offset){
 int filev6_create(struct unix_filesystem *u, uint16_t mode, struct filev6 *fv6){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(fv6);
+    //initialise an inode with the right mode
     struct inode ind = {0};
     ind.i_mode = mode;
+    //write this inode on the disk
     int err = inode_write(u, fv6->i_number ,&ind);
     if(err < 0){
         return err;
     }
+    //update the struct filev6
     fv6->i_node = ind;
     return 0;
 }

@@ -1,8 +1,7 @@
 #include "bmblock.h"
 
 int main(){
-    //struct bmblock_array * bm = bm_alloc(4, 131);
-    struct bmblock_array * bm = bm_alloc(4, 195);
+    struct bmblock_array * bm = bm_alloc(4, 131);
     int next = bm_find_next(bm);
     bm_print(bm);
     printf("find_next() = %d\n", next);
@@ -25,22 +24,5 @@ int main(){
     bm_print(bm);
     printf("find_next() = %d\n", next);
 
-    //debug
-    for (uint64_t i = bm->min; i <= bm->max; i++) {
-        bm_clear(bm, i);
-    }
-
-    for (uint64_t i = bm->min; i <= bm->max; i++) {
-        bm_set(bm, i);
-    }
-
-    bm_clear(bm, 4+7 + (24-1)*8);
-    next = bm_find_next(bm);
-    bm_print(bm);
-    printf("find_next() = %d\n",next);
-    //
     return 0;
 }
-
-
-//set(bm, 5) quand max = 4  --> set le 2eme

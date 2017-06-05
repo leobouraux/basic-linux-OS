@@ -96,19 +96,22 @@ void bm_print(struct bmblock_array *bmblock_array){
 int bm_find_next(struct bmblock_array *bmblock_array){
     M_REQUIRE_NON_NULL(bmblock_array);
     uint64_t current_row = bmblock_array->bm[bmblock_array->cursor];
-    uint64_t init_cursor = bmblock_array->cursor;
+    uint64_t initial_cursor = bmblock_array->cursor;
     unsigned int i = 0;
+
     while ((current_row & 1) !=0) {
         current_row >>= 1;
+        //new row
         if(i%BITS_PER_VECTOR == BITS_PER_VECTOR-1  &&  bmblock_array->cursor < bmblock_array->length-1) {
             current_row = bmblock_array->bm[++bmblock_array->cursor];
         }
         i++;
     }
+    //every positions are assigned
     if(bmblock_array->bm[bmblock_array->cursor] == UINT64_C(-1))
         return ERR_BITMAP_FULL;
 
-    return (int)(init_cursor*BITS_PER_VECTOR + i+bmblock_array->min);
+    return (int)(initial_cursor*BITS_PER_VECTOR + i+bmblock_array->min);
 }
 
 

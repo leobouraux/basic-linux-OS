@@ -13,7 +13,7 @@ void fill_fbm(struct unix_filesystem *u){
     for(uint16_t inc = 0; inc < size; ++inc){
         struct inode inodes[SECTOR_SIZE];
         int j = sector_read(u->f, (uint32_t)(start+inc), inodes);
-        if(j != ERR_BAD_PARAMETER && j != ERR_IO){
+        if(j > 0){
             for (unsigned int i = 0; i < INODES_PER_SECTOR; ++i) {
                 struct inode inod = inodes[i];
                 if (inod.i_mode & IALLOC){
@@ -50,11 +50,14 @@ void fill_ibm(struct unix_filesystem *u){
     for(uint16_t inc = 0; inc < size; ++inc){
         struct inode inodes[SECTOR_SIZE];
         int j = sector_read(u->f, (uint32_t)(start+inc), inodes);
-        if(j == ERR_BAD_PARAMETER || j == ERR_IO){
+
+        //in case of error, we consider that every inodes are allocated
+        if(j < 0){
            for (unsigned int i = 0; i < INODES_PER_SECTOR; ++i) {
                bm_set(u->ibm, i+inc*INODES_PER_SECTOR);
             }
-        }else{
+        }
+        else{
             for (unsigned int i = 0; i < INODES_PER_SECTOR; ++i) {
                 struct inode inod = inodes[i];
                 if (inod.i_mode & IALLOC){
@@ -91,10 +94,11 @@ int mountv6(const char *filename, struct unix_filesystem *u){
     err = sector_read(u->f, SUPERBLOCK_SECTOR, &u->s);
     if(err >= 0){
         u->ibm = bm_alloc(u->s.s_inode_start, (uint64_t)(u->s.s_isize * INODES_PER_SECTOR));
-        u->s.s_ibmsize = (uint16_t)u->ibm->length;
+        //we don't update s_ibmsize and s_fbmsize in this project
+        //u->s.s_ibmsize = (uint16_t)u->ibm->length;
         fill_ibm(u);
         u->fbm = bm_alloc((uint16_t)(u->s.s_block_start+1), (uint64_t)(u->s.s_fsize));
-        u->s.s_fbmsize = (uint16_t)u->fbm->length;
+        //u->s.s_fbmsize = (uint16_t)u->fbm->length;
         fill_fbm(u);
     }
     return err;

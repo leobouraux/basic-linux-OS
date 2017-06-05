@@ -114,11 +114,14 @@ int inode_write(struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
     uint16_t start = u->s.s_inode_start;
     uint16_t block_offset = inr / INODES_PER_SECTOR;
     struct inode inodes[SECTOR_SIZE];
+    //we read the sector to have a table of inodes
     int err = sector_read(u->f, (uint32_t) (start + block_offset), inodes);
     if(err < 0){
         return err;
     }
+    //update the inode
     inodes[inr % INODES_PER_SECTOR] = *inode;
+    //write the new sector on the disk
     return sector_write(u->f, (uint32_t) (start + block_offset), inodes);
 }
 

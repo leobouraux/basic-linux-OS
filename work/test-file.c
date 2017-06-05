@@ -3,7 +3,6 @@
 #include "filev6.h"
 #include <string.h>
 #include "sha.h"
-#include "error.h"
 #include "sector.h"
 
 void helper(struct unix_filesystem *u, struct filev6 *fs, uint16_t i){
