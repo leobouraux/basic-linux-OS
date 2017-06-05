@@ -223,7 +223,7 @@ int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
 }
 
 /**
- * @brief unimplemented
+ * @brief adds a local file to the mounted disk
  * @param args
  * @return
  */
@@ -232,7 +232,6 @@ int do_add(char args[ARG_NB][ARG_LENGTH]){
     if(err < 0){
         return 0;
     }
-    char content[7*256*512];
     FILE* file = fopen(args[1], "rb");
     fseek(file, 0, SEEK_END);
     long fsize = ftell(file);
@@ -240,6 +239,7 @@ int do_add(char args[ARG_NB][ARG_LENGTH]){
         return ERR_IO;
     }
     fseek(file, 0, SEEK_SET);
+    char content[fsize];
     size_t read_size = fread(content, (size_t)fsize, 1, file);
     if(read_size == 0){ //TODO < fsize
         return ERR_IO;
