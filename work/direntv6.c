@@ -45,8 +45,6 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
     return 1;
 }
 
-
-
 int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const char *prefix){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(prefix);
@@ -133,69 +131,52 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
     return ERR_INODE_OUTOF_RANGE;
 }
 
-/**
- * @brief helper function checking if entry is a valid path to write and computes relative_name and parent_inr
- * @param u
- * @param entry
- * @param relative_name
- * @param parent_inr
- * @return 0 on success, error code otherwise
- */
-int direntv6_test_available(struct unix_filesystem *u, const char *entry, char *relative_name, int *parent_inr){
-    M_REQUIRE_NON_NULL(u);
-    M_REQUIRE_NON_NULL(entry);
-    M_REQUIRE_NON_NULL(relative_name);
-    M_REQUIRE_NON_NULL(parent_inr);
-
-    char parent[MAXPATHLEN_UV6] = {0};
-    char tmp[MAXPATHLEN_UV6] = {0};
-    strcpy(tmp, entry);
-    //delete /s at end
-    for (size_t i = strlen(tmp)-1; tmp[i] == PATH_TOKEN ; tmp[i--] = '\0');
-
-    char *limit = strrchr(tmp, '/');
-    if(limit == NULL){
-        return ERR_BAD_PARAMETER;
-    }
-    strncpy(relative_name, limit+1, DIRENT_MAXLEN);
-    strncpy(parent, tmp, strlen(tmp)-strlen(relative_name));
-
-    *parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent);
-    if(*parent_inr < 0){
-        return ERR_BAD_PARAMETER;
-    }
-
-    int child_inr = direntv6_dirlookup(u, (uint16_t)*parent_inr, relative_name);
-    if(child_inr >= 0){
-        return ERR_FILENAME_ALREADY_EXISTS;
-    }
-    return 0;
-
-}
-
 int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode){
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(entry);
-    char relative_name[14];
+
+    //compute name and parent inode nb
+    const char *relative_name;
     int parent_inr = 0;
-    int err = direntv6_test_available(u, entry, relative_name, &parent_inr);
-    if(err < 0){
-        return err;
+    char *end = strrchr(entry, PATH_TOKEN);
+    while ((end - entry + 1) == strlen(entry) && *end == PATH_TOKEN){
+        *(end--) = '\0';
+    }
+    char *limit = strrchr(entry, PATH_TOKEN);
+    if(limit == NULL){
+        //making file at root
+        relative_name = entry;
+        parent_inr = ROOT_INUMBER;
+    }else{
+        //check if parent exist
+        *limit = '\0';
+        relative_name = limit + 1;
+        parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, entry);
+        if(parent_inr < 0){
+            return ERR_BAD_PARAMETER;
+        }
+        *limit = PATH_TOKEN;
+    }
+    //check that file doesn't already exist
+    int child_inr = direntv6_dirlookup(u, (uint16_t)parent_inr, relative_name);
+    if(child_inr >= 0){
+        return ERR_FILENAME_ALREADY_EXISTS;
     }
 
+    //alloc and writes the inode on disk
     int inr = inode_alloc(u);
     if(inr < 0){
         return inr;
     }
     struct inode ind = {0};
     struct filev6 fv6 = {u, (uint16_t)inr,ind,0};
-    err = filev6_create(u, mode, &fv6);
+    int err = filev6_create(u, mode, &fv6);
     if(err < 0){
         return err;
     }
     struct direntv6 dir = {0};
     dir.d_inumber = (uint16_t)inr;
-    strncpy(dir.d_name, relative_name, 14);
+    strcpy(dir.d_name, relative_name);
 
     struct inode parent_inode = {0};
     err = inode_read(u, (uint16_t)parent_inr, &parent_inode);
