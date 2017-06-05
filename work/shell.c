@@ -126,7 +126,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
     if (fs.i_node.i_mode & IFDIR) {
         return ERR_CAT_ON_DIR;
     } else {
-        int32_t maxSize = inode_getsectorsize(&fs.i_node)+1;
+        uint32_t maxSize = (uint32_t)inode_getsectorsize(&fs.i_node)+1;
         char content[maxSize];
         memset(content, 0, maxSize * sizeof(char));
         size_t totalSize = 0;

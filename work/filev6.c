@@ -91,7 +91,7 @@ int filev6_convert_to_big(struct unix_filesystem *u, struct filev6 *fv6){
 }
 
 int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf, int len, int offset){
-    int32_t inode_size = inode_getsize(&fv6->i_node);
+    uint32_t inode_size = (uint32_t)inode_getsize(&fv6->i_node);
     if(inode_size > 7 * ADDRESSES_PER_SECTOR * SECTOR_SIZE){
         return ERR_FILE_TOO_LARGE;
     }
@@ -116,7 +116,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf,
             return sector;
         }
         bm_set(u->fbm, (uint64_t)sector);
-        err = sector_write(u->f, (uint32_t)sector, buf + offset);
+        err = sector_write(u->f, (uint32_t)sector, ((uint8_t*)buf) + offset);
         if(err < 0){
             return err;
         }
@@ -151,7 +151,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf,
             }
         }else{
             //small file
-            int32_t addr_index = inode_size/SECTOR_SIZE;
+            uint32_t addr_index = inode_size/SECTOR_SIZE;
             fv6->i_node.i_addr[addr_index] = (uint16_t)sector;
         }
     }else{
@@ -176,11 +176,11 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf,
             return err;
         }
     }
-    err = inode_setsize(&fv6->i_node, inode_size + nb_bytes);
+    err = inode_setsize(&fv6->i_node, (int)(inode_size + nb_bytes));
     if(err < 0){
         return err;
     }
-    return nb_bytes;
+    return (int)nb_bytes;
 }
 
 int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, int len){
