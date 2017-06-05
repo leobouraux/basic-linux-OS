@@ -30,7 +30,7 @@ int test(struct unix_filesystem *u) {
     memset(&fs, 255, sizeof(fs));
     helper(u, &fs, 3);
     memset(&fs, 255, sizeof(fs));
-    helper(u, &fs, 23);
+    helper(u, &fs, 5);
 
     printf("Listing inodes SHA:\n");
     int i_count = 0;

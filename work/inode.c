@@ -127,6 +127,7 @@ int inode_write(struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
 
 int inode_alloc(struct unix_filesystem *u){
     int inr = bm_find_next(u->ibm);
+    //if there is no more available inodes
     if(inr < 0){
         return ERR_NOMEM;
     }
@@ -138,6 +139,7 @@ int inode_setsize(struct inode *inode, int new_size) {
     if (new_size < 0) {
         return ERR_NOMEM;
     }
+    //write the size of a file in the corresponding inode
     inode->i_size0 = (uint8_t)(new_size >> 16);
     inode->i_size1 = (uint16_t)(new_size & 0xFFFF);
     return 0;

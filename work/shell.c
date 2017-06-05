@@ -219,7 +219,7 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
  */
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
-    return direntv6_create(&u, args[1],IFDIR | IALLOC);
+    return direntv6_create(&u, args[1], IFDIR | IALLOC);
 }
 
 /**

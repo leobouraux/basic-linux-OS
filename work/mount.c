@@ -84,13 +84,13 @@ int mountv6(const char *filename, struct unix_filesystem *u){
     //read boot block to check consistence of disk
     uint8_t content[SECTOR_SIZE];
     int err = sector_read(u->f, BOOTBLOCK_SECTOR, content);
-    if(err == ERR_IO || err == ERR_BAD_PARAMETER){
+    if(err < 0){
         return err;
     }
     if(content[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM){
         return ERR_BADBOOTSECTOR;
     }
-    //read super block
+    //read superblock
     err = sector_read(u->f, SUPERBLOCK_SECTOR, &u->s);
     if(err >= 0){
         u->ibm = bm_alloc(u->s.s_inode_start, (uint64_t)(u->s.s_isize * INODES_PER_SECTOR));
@@ -134,16 +134,16 @@ void mountv6_print_superblock(const struct unix_filesystem *u){
 }
 
 
-int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes) {//struct unix_filesystem *u en param ?
+int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes) {
     M_REQUIRE_NON_NULL(filename);
 
-    //comment representer un super block qui est un secteur different des secteurs avec inode
     struct superblock spb = {0};
     spb.s_isize =  num_inodes % INODES_PER_SECTOR == 0 ? num_inodes / INODES_PER_SECTOR : num_inodes / INODES_PER_SECTOR + 1;
     spb.s_fsize = num_blocks;
     if(spb.s_fsize < spb.s_isize)
         return ERR_NOT_ENOUGH_BLOCS;
-    spb.s_inode_start = SUPERBLOCK_SECTOR+1;  //les blocks de bitmaps ne sont pas stockés sur le disk mais calculé au démarage
+    //bitmaps blocks are not stored on the disk (see intro week10)
+    spb.s_inode_start = SUPERBLOCK_SECTOR+1;
     spb.s_block_start = spb.s_inode_start + spb.s_isize;
 
     //create a binary file
@@ -180,7 +180,6 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
                 return err;
             }
         }
-
         fclose(f);
     }
     return 0;

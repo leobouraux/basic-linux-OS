@@ -190,12 +190,15 @@ int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, 
     int offset = 0;
     int read_size = 1;
     while (offset < len && read_size > 0){
+        //add a content sector in a filev6 at offset position
         read_size = filev6_writesector(u, fv6, buf, len, offset);
+        if(read_size < 0){
+            return read_size;
+        }
+
         offset += read_size;
     }
-    if(read_size < 0){
-        return read_size;
-    }
+
     int err = inode_write(u, fv6->i_number, &fv6->i_node);
     if(err < 0){
         return err;
