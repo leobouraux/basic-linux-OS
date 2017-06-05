@@ -95,20 +95,20 @@ void bm_print(struct bmblock_array *bmblock_array){
 
 int bm_find_next(struct bmblock_array *bmblock_array){
     M_REQUIRE_NON_NULL(bmblock_array);
-    uint64_t current_row = bmblock_array->bm[bmblock_array->cursor];
-    uint64_t init_cursor = bmblock_array->cursor;
-    unsigned int i = 0;
-    while ((current_row & 1) !=0) {
-        current_row >>= 1;
-        if(i%BITS_PER_VECTOR == BITS_PER_VECTOR-1  &&  bmblock_array->cursor < bmblock_array->length-1) {
-            current_row = bmblock_array->bm[++bmblock_array->cursor];
+    //for each 'rows'
+    for (uint64_t i = bmblock_array->cursor; i < bmblock_array->max/BITS_PER_VECTOR; ++i) {
+        uint64_t current_row = bmblock_array->bm[i];
+        //if the row is not full of 1's
+        if (current_row != UINT64_C(-1)) {
+            for (int j = 0; j < BITS_PER_VECTOR; ++j) {
+                uint64_t index = bmblock_array->min + j + i*BITS_PER_VECTOR;
+                int elem = bm_get(bmblock_array, index);
+                if (elem < 0)
+                    return elem;
+                if (elem ==0)
+                    return (int)index;
+            }
         }
-        i++;
     }
-    if(bmblock_array->bm[bmblock_array->cursor] == UINT64_C(-1))
-        return ERR_BITMAP_FULL;
-
-    return (int)(init_cursor*BITS_PER_VECTOR + i+bmblock_array->min);
+    return ERR_BITMAP_FULL;
 }
-
-

@@ -48,7 +48,7 @@ void inode_print(const struct inode *inode) {
         printf("i_size0: %" PRIu8"\n", inode->i_size0);
         printf("i_size1: %" PRIu16"\n", inode->i_size1);
         printf("size: %" PRIu16" \n", inode_getsize(inode));
-
+        printf("adr : %" PRIu16" %" PRIu16" %" PRIu16"\n", inode->i_addr[0], inode->i_addr[1], inode->i_addr[2]);
     }
     printf("**********FS INODE END**********\n");
 }
@@ -114,16 +114,20 @@ int inode_write(struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
     uint16_t start = u->s.s_inode_start;
     uint16_t block_offset = inr / INODES_PER_SECTOR;
     struct inode inodes[SECTOR_SIZE];
+    //we read the sector to have a table of inodes
     int err = sector_read(u->f, (uint32_t) (start + block_offset), inodes);
     if(err < 0){
         return err;
     }
+    //update the inode
     inodes[inr % INODES_PER_SECTOR] = *inode;
+    //write the new sector on the disk
     return sector_write(u->f, (uint32_t) (start + block_offset), inodes);
 }
 
 int inode_alloc(struct unix_filesystem *u){
     int inr = bm_find_next(u->ibm);
+    //if there is no more available inodes
     if(inr < 0){
         return ERR_NOMEM;
     }
@@ -135,6 +139,7 @@ int inode_setsize(struct inode *inode, int new_size) {
     if (new_size < 0) {
         return ERR_NOMEM;
     }
+    //write the size of a file in the corresponding inode
     inode->i_size0 = (uint8_t)(new_size >> 16);
     inode->i_size1 = (uint16_t)(new_size & 0xFFFF);
     return 0;

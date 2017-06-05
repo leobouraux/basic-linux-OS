@@ -156,6 +156,9 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
         }
         *limit = PATH_TOKEN;
     }
+    if(strlen(relative_name) > DIRENT_MAXLEN){
+        return ERR_FILENAME_TOO_LONG;
+    }
     //check that file doesn't already exist
     int child_inr = direntv6_dirlookup(u, (uint16_t)parent_inr, relative_name);
     if(child_inr >= 0){

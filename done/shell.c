@@ -126,7 +126,7 @@ int do_cat(char args[ARG_NB][ARG_LENGTH]){
     if (fs.i_node.i_mode & IFDIR) {
         return ERR_CAT_ON_DIR;
     } else {
-        int32_t maxSize = inode_getsectorsize(&fs.i_node)+1;
+        uint32_t maxSize = (uint32_t)inode_getsectorsize(&fs.i_node)+1;
         char content[maxSize];
         memset(content, 0, maxSize * sizeof(char));
         size_t totalSize = 0;
@@ -153,8 +153,8 @@ int do_sha(char args[ARG_NB][ARG_LENGTH]){
     if(inr < 0){
         return inr;
     }
-    struct inode inode;
-    memset(&inode, 0, sizeof(inode));
+    struct inode inode = {0};
+    //memset(&inode, 255, sizeof(inode));
     int err = inode_read(&u, (uint16_t)inr, &inode);
     if(err < 0){
         return err;
@@ -219,11 +219,11 @@ int do_mkfs(char args[ARG_NB][ARG_LENGTH]){
  */
 int do_mkdir(char args[ARG_NB][ARG_LENGTH]){
     M_REQUIRE_NON_NULL(args);
-    return direntv6_create(&u, args[1],IFDIR | IALLOC);
+    return direntv6_create(&u, args[1], IFDIR | IALLOC);
 }
 
 /**
- * @brief unimplemented
+ * @brief adds a local file to the mounted disk
  * @param args
  * @return
  */
@@ -232,7 +232,6 @@ int do_add(char args[ARG_NB][ARG_LENGTH]){
     if(err < 0){
         return 0;
     }
-    char content[7*256*512];
     FILE* file = fopen(args[1], "rb");
     fseek(file, 0, SEEK_END);
     long fsize = ftell(file);
@@ -240,6 +239,7 @@ int do_add(char args[ARG_NB][ARG_LENGTH]){
         return ERR_IO;
     }
     fseek(file, 0, SEEK_SET);
+    char content[fsize];
     size_t read_size = fread(content, (size_t)fsize, 1, file);
     if(read_size == 0){ //TODO < fsize
         return ERR_IO;
@@ -261,19 +261,19 @@ int do_add(char args[ARG_NB][ARG_LENGTH]){
  * array of all the shell commands
  */
 struct shell_map shell_cmds[13] = {
-        { "help", do_help, "display this help", 0, ""},
-        { "exit", do_exit, "exit shell", 0, ""},
-        { "quit", do_quit, "exit shell", 0, ""},
-        { "mkfs", do_mkfs, "create a new filesystem", 3, "<diskname> <#inodes> <#blocks>"},
-        { "mount", do_mount, "mount the provided filesystem", 1, "<diskname>"},
-        { "mkdir", do_mkdir, "create a new directory", 1, "<dirname>"},
-        { "lsall", do_lsall, "list all directories and files contained in the currently mounted filesystem", 0, ""},
-        { "add", do_add, "add new file", 2, "<src-fullpath> <dst>"},
-        { "cat", do_cat, "display the content of a file", 1, "<pathname>"},
-        { "istat", do_istat, "display information about the provided inode", 1, "<inode_nr>"},
-        { "inode", do_inode, "display the inode number of a file", 1, "<pathname>"},
-        { "sha", do_sha, "display the Sha file", 1, "<pathname>"},
-        { "psb", do_psb, "print SuperBlock of the currently mounted filesystem", 0, ""}
+        { "help", do_help, "display this help.", 0, ""},
+        { "exit", do_exit, "exit shell.", 0, ""},
+        { "quit", do_quit, "exit shell.", 0, ""},
+        { "mkfs", do_mkfs, "create a new filesystem.", 3, "<diskname> <#inodes> <#blocks>"},
+        { "mount", do_mount, "mount the provided filesystem.", 1, "<diskname>"},
+        { "mkdir", do_mkdir, "create a new directory.", 1, "<dirname>"},
+        { "lsall", do_lsall, "list all directories and files contained in the currently mounted filesystem.", 0, ""},
+        { "add", do_add, "add new file.", 2, "<src-fullpath> <dst>"},
+        { "cat", do_cat, "display the content of a file.", 1, "<pathname>"},
+        { "istat", do_istat, "display information about the provided inode.", 1, "<inode_nr>"},
+        { "inode", do_inode, "display the inode number of a file.", 1, "<pathname>"},
+        { "sha", do_sha, "display the SHA of a file.", 1, "<pathname>"},
+        { "psb", do_psb, "Print SuperBlock of the currently mounted filesystem.", 0, ""}
 };
 
 int do_help(char args[ARG_NB][ARG_LENGTH]) {
