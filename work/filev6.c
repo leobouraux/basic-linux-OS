@@ -29,7 +29,7 @@ int filev6_readblock(struct filev6 *fv6, void *buf){
     }
     if(remaining){
         int j = sector_read(fv6->u->f, (uint32_t)sector, buf);
-        if(j == ERR_IO || j == ERR_BAD_PARAMETER){
+        if(j < 0){
             return j;
         }
     }

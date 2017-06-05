@@ -153,8 +153,8 @@ int do_sha(char args[ARG_NB][ARG_LENGTH]){
     if(inr < 0){
         return inr;
     }
-    struct inode inode;
-    memset(&inode, 0, sizeof(inode));
+    struct inode inode = {0};
+    //memset(&inode, 255, sizeof(inode));
     int err = inode_read(&u, (uint16_t)inr, &inode);
     if(err < 0){
         return err;
@@ -261,19 +261,19 @@ int do_add(char args[ARG_NB][ARG_LENGTH]){
  * array of all the shell commands
  */
 struct shell_map shell_cmds[13] = {
-        { "help", do_help, "display this help", 0, ""},
-        { "exit", do_exit, "exit shell", 0, ""},
-        { "quit", do_quit, "exit shell", 0, ""},
-        { "mkfs", do_mkfs, "create a new filesystem", 3, "<diskname> <#inodes> <#blocks>"},
-        { "mount", do_mount, "mount the provided filesystem", 1, "<diskname>"},
-        { "mkdir", do_mkdir, "create a new directory", 1, "<dirname>"},
-        { "lsall", do_lsall, "list all directories and files contained in the currently mounted filesystem", 0, ""},
-        { "add", do_add, "add new file", 2, "<src-fullpath> <dst>"},
-        { "cat", do_cat, "display the content of a file", 1, "<pathname>"},
-        { "istat", do_istat, "display information about the provided inode", 1, "<inode_nr>"},
-        { "inode", do_inode, "display the inode number of a file", 1, "<pathname>"},
-        { "sha", do_sha, "display the Sha file", 1, "<pathname>"},
-        { "psb", do_psb, "print SuperBlock of the currently mounted filesystem", 0, ""}
+        { "help", do_help, "display this help.", 0, ""},
+        { "exit", do_exit, "exit shell.", 0, ""},
+        { "quit", do_quit, "exit shell.", 0, ""},
+        { "mkfs", do_mkfs, "create a new filesystem.", 3, "<diskname> <#inodes> <#blocks>"},
+        { "mount", do_mount, "mount the provided filesystem.", 1, "<diskname>"},
+        { "mkdir", do_mkdir, "create a new directory.", 1, "<dirname>"},
+        { "lsall", do_lsall, "list all directories and files contained in the currently mounted filesystem.", 0, ""},
+        { "add", do_add, "add new file.", 2, "<src-fullpath> <dst>"},
+        { "cat", do_cat, "display the content of a file.", 1, "<pathname>"},
+        { "istat", do_istat, "display information about the provided inode.", 1, "<inode_nr>"},
+        { "inode", do_inode, "display the inode number of a file.", 1, "<pathname>"},
+        { "sha", do_sha, "display the SHA of a file.", 1, "<pathname>"},
+        { "psb", do_psb, "Print SuperBlock of the currently mounted filesystem.", 0, ""}
 };
 
 int do_help(char args[ARG_NB][ARG_LENGTH]) {

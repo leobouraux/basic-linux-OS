@@ -31,7 +31,7 @@ int test(struct unix_filesystem *u) {
     memset(&fs, 255, sizeof(fs));
     helper(u, &fs, 3);
     memset(&fs, 255, sizeof(fs));
-    helper(u, &fs, 5);
+    helper(u, &fs, 23);
 
     printf("Listing inodes SHA:\n");
     int i_count = 0;
@@ -41,7 +41,7 @@ int test(struct unix_filesystem *u) {
         struct inode inodes[SECTOR_SIZE];
         //we read this sector and put it in the table of inodes
         int j = sector_read(u->f, (uint32_t)u->s.s_inode_start + inc, inodes);
-        if (j == ERR_BAD_PARAMETER || j == ERR_IO) {
+        if (j < 0) {
             return j;
         }
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
