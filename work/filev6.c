@@ -138,12 +138,12 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, void *buf,
                 fv6->i_node.i_addr[inode_size / (SECTOR_SIZE*ADDRESSES_PER_SECTOR)] = (uint16_t)indirec_sector;
             }else{
                 //big file but current indirection not full
-                uint16_t data[SECTOR_SIZE];
+                uint16_t data[ADDRESSES_PER_SECTOR];
                 err = sector_read(u->f, fv6->i_node.i_addr[inode_size / (SECTOR_SIZE*ADDRESSES_PER_SECTOR)], data);
                 if (err < 0) {
                     return err;
                 }
-                data[inode_size % (SECTOR_SIZE*ADDRESSES_PER_SECTOR)] = (uint16_t)sector;
+                data[(inode_size / SECTOR_SIZE)%ADDRESSES_PER_SECTOR] = (uint16_t)sector;
                 err = sector_write(u->f, fv6->i_node.i_addr[inode_size / (SECTOR_SIZE*ADDRESSES_PER_SECTOR)], data);
                 if (err < 0) {
                     return err;
