@@ -152,7 +152,7 @@ int direntv6_test_available(struct unix_filesystem *u, const char *entry, char *
     strcpy(tmp, entry);
     //delete /s at end
     for (size_t i = strlen(tmp)-1; tmp[i] == PATH_TOKEN ; tmp[i--] = '\0');
-    
+
     char *limit = strrchr(tmp, '/');
     if(limit == NULL){
         return ERR_BAD_PARAMETER;
