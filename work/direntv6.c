@@ -147,16 +147,18 @@ int direntv6_test_available(struct unix_filesystem *u, const char *entry, char *
     M_REQUIRE_NON_NULL(relative_name);
     M_REQUIRE_NON_NULL(parent_inr);
 
-
-    char parent[30] = {0};              //TODO magic numbers?
-    char *limit = strrchr(entry, '/'); //TODO handle / at the end
+    char parent[MAXPATHLEN_UV6] = {0};
+    char tmp[MAXPATHLEN_UV6] = {0};
+    strcpy(tmp, entry);
+    //delete /s at end
+    for (size_t i = strlen(tmp)-1; tmp[i] == PATH_TOKEN ; tmp[i--] = '\0');
+    
+    char *limit = strrchr(tmp, '/');
     if(limit == NULL){
         return ERR_BAD_PARAMETER;
     }
-
-    strncpy(relative_name, limit+1, 14);  //TODO magic numbers?
-    strncpy(parent, entry, strlen(entry)-strlen(relative_name));
-
+    strncpy(relative_name, limit+1, DIRENT_MAXLEN);
+    strncpy(parent, tmp, strlen(tmp)-strlen(relative_name));
 
     *parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent);
     if(*parent_inr < 0){
